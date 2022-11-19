@@ -1,5 +1,6 @@
 import { AddBox } from '@mui/icons-material'
 import { Button, List } from '@mui/material'
+import { Box } from '@mui/system'
 import { useContext, useEffect } from 'react'
 import { ToDoContext } from '../contexts/ToDo.context'
 import { TodoActionKind } from '../reducers/todoReducer'
@@ -17,6 +18,8 @@ function ToDoItemList() {
           return {
             id: `${i}`,
             title: 'test',
+            date: new Date(),
+            time: new Date(),
           }
         }),
       },
@@ -35,7 +38,7 @@ function ToDoItemList() {
   }
   return (
     <>
-      <List>
+      <List sx={{ marginBottom: '60px' }}>
         {todoState.todos.map(({ id, title }, index) => (
           <ToDoItem
             key={index}
@@ -48,10 +51,20 @@ function ToDoItemList() {
         ))}
       </List>
       <EditToDoModal />
-      <Button variant="text" onClick={addToDoHandler}>
-        <AddBox />
-        Add
-      </Button>
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: '56px',
+          paddingBottom: '4px',
+          width: '100%',
+          backgroundColor: '#ffffff'
+        }}
+      >
+        <Button variant="text" onClick={addToDoHandler}>
+          <AddBox />
+          Add
+        </Button>
+      </Box>
     </>
   )
 }
