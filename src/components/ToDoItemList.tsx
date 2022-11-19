@@ -1,45 +1,40 @@
 import { AddBox } from '@mui/icons-material'
 import { Button, List } from '@mui/material'
 import { Box } from '@mui/system'
-import { useContext, useEffect } from 'react'
-import { ToDoContext } from '../contexts/ToDo.context'
-import { TodoActionKind } from '../reducers/todoReducer'
+import { useEffect } from 'react'
+import { Todo } from '../../types'
+import { useStore } from '../app/store'
 import EditToDoModal from './EditToDoModal'
 import ToDoItem from './ToDoItem'
 
 function ToDoItemList() {
-  const { todoState, todoDispatch } = useContext(ToDoContext)
+  const { todos, initTodos, addTodo, updateTodo } = useStore()
 
   useEffect(() => {
-    todoDispatch({
-      type: TodoActionKind.INIT,
-      payload: {
-        todos: [...Array(10)].map((_, i) => {
-          return {
-            id: `${i}`,
-            title: 'test',
-            date: new Date(),
-            time: new Date(),
-          }
-        }),
-      },
-    })
-  }, [todoDispatch])
+    initTodos(
+      [...Array(10)].map((_, i) => {
+        return {
+          id: `${i}`,
+          title: 'test',
+          date: new Date(),
+          time: new Date(),
+        }
+      }) as Todo[]
+    )
+  }, [])
 
   const addToDoHandler = () => {
-    todoDispatch({ type: TodoActionKind.ADD })
+    addTodo()
   }
 
   const ontTitleChangeHandler = (id: string, titleText: string) => {
-    todoDispatch({
-      type: TodoActionKind.UPDATE,
-      payload: { id, title: titleText },
-    })
+    const todoInEdit = todos.find((t) => t.id === id)
+    updateTodo({ ...todoInEdit, title: titleText } as Todo)
   }
   return (
     <>
       <List sx={{ marginBottom: '60px' }}>
-        {todoState.todos.map(({ id, title }, index) => (
+        {todos.map(({ id, title }, index) => (
           <ToDoItem
             key={index}
             id={id}
@@ -57,7 +52,7 @@ function ToDoItemList() {
           bottom: '56px',
           paddingBottom: '4px',
           width: '100%',
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
         }}
       >
         <Button variant="text" onClick={addToDoHandler}>

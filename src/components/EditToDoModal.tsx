@@ -11,11 +11,10 @@ import Toolbar from '@mui/material/Toolbar'
 import { TransitionProps } from '@mui/material/transitions'
 import Typography from '@mui/material/Typography'
 import dayjs, { Dayjs } from 'dayjs'
-import { forwardRef, useContext, useEffect, useState } from 'react'
+import { forwardRef, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Todo } from '../../types'
-import { ToDoContext } from '../contexts/ToDo.context'
-import { TodoActionKind } from '../reducers/todoReducer'
+import { useStore } from '../app/store'
 import AlertDialog from './AlertDialog'
 import BasicDatePicker from './BasicDatePicker'
 import BasicTimePicker from './BasicTimePicker'
@@ -34,7 +33,7 @@ function EditToDoModal() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { id } = useParams()
-  const { todoState, todoDispatch } = useContext(ToDoContext)
+  const { todos, updateTodo } = useStore()
   const [currTodo, setCurrTodo] = useState<Todo>()
   const [dateVal, setDateVal] = useState<Dayjs | null>(null)
   const [timeVal, setTimeVal] = useState<Dayjs | null>(null)
@@ -43,10 +42,10 @@ function EditToDoModal() {
     setCurrTodo(
       Object.assign(
         {},
-        todoState.todos.find((t) => t.id === id)
+        todos.find((t) => t.id === id)
       )
     )
-  }, [todoState.todos, id])
+  }, [todos, id])
 
   useEffect(() => {
     const newDate = currTodo?.date ? dayjs(currTodo?.date) : null
@@ -79,7 +78,6 @@ function EditToDoModal() {
   }
 
   const handleDateChange = (val: Date | null) => {
-    console.log('date', val)
     setCurrTodo(
       (t) =>
         ({
@@ -90,7 +88,6 @@ function EditToDoModal() {
   }
 
   const handleTimeChange = (val: Date | null) => {
-    console.log('time', val)
     setCurrTodo(
       (t) =>
         ({
@@ -143,7 +140,7 @@ function EditToDoModal() {
               autoFocus
               color="inherit"
               onClick={() => {
-                todoDispatch({ type: TodoActionKind.UPDATE, payload: currTodo })
+                updateTodo(currTodo!)
                 navigate(-1)
               }}
             >
