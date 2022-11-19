@@ -4,10 +4,9 @@ export interface AppSlice {
   loading: boolean
 
   // for multi-select todos
-  isSelectMode: boolean
-  toggleSelectMode: () => void
   selected: string[]
-  addSelected: (id: string) => void
+  toggleSelected: (id: string) => void
+  clearSelected: () => void
 }
 
 export const createAppSlice: StateCreator<
@@ -17,7 +16,6 @@ export const createAppSlice: StateCreator<
   AppSlice
 > = (set) => ({
   loading: false,
-  isSelectMode: false,
   selected: [],
   toggleLoading: async () => {
     set(
@@ -28,32 +26,24 @@ export const createAppSlice: StateCreator<
       'toggleLoading'
     )
   },
-  toggleSelectMode: () => {
+  toggleSelected: (id) => {
     set(
       (state) => {
-        // clear selected if select->unselect
-        if (state.isSelectMode) {
-          return ({
-            selected: [],
-            isSelectMode: !state.isSelectMode,
-          })
+        if (state.selected.indexOf(id) > -1) {
+          return {
+            selected: state.selected.filter((s) => s !== id),
+          }
         } else {
-          return ({
-            isSelectMode: !state.isSelectMode,
-          })
+          return {
+            selected: state.selected.concat(id),
+          }
         }
       },
       false,
-      'toggleSelectMode'
+      'toggleSelected'
     )
   },
-  addSelected: (id) => {
-    set(
-      (state) => ({
-        selected: state.selected.concat(id),
-      }),
-      false,
-      'addSelected'
-    )
+  clearSelected: () => {
+    set((state) => ({ selected: [] }), false, 'clearSelected')
   },
 })

@@ -1,6 +1,7 @@
 import { AddBox as AddBoxIcon, Rule as RuleIcon } from '@mui/icons-material'
 import { Button, Grid, List } from '@mui/material'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useStore } from '../app/store'
 import { addServerTodo, fetchTodos, updateServerTodo } from '../utils/api'
@@ -8,8 +9,10 @@ import EditToDoModal from './EditToDoModal'
 import ToDoItem from './ToDoItem'
 
 function ToDoItemList() {
-  const { todos, initTodos, addTodo, updateTodo, isSelectMode } = useStore()
-  const { toggleSelectMode } = useStore()
+  const { todos, initTodos, addTodo, updateTodo, clearSelected, selected } =
+    useStore()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const getTodos = async () => {
@@ -36,6 +39,16 @@ function ToDoItemList() {
     updateTodo(updTodo)
   }
 
+  const isSelectMode = useMemo(() => {
+    return new URLSearchParams(searchParams).get('mode') === 'select'
+  }, [searchParams])
+
+  useEffect(() => {
+    if (!isSelectMode) {
+      clearSelected()
+    }
+  }, [isSelectMode, clearSelected])
+
   return (
     <>
       <List sx={{ marginBottom: '60px' }}>
@@ -61,16 +74,40 @@ function ToDoItemList() {
           backgroundColor: '#ffffff',
         }}
       >
-        <Grid xs={6} item>
-          <Button variant="text" onClick={addToDoHandler}>
-            <AddBoxIcon />
-            Add
-          </Button>
-        </Grid>
+        {!isSelectMode && (
+          <Grid xs={6} item>
+            <Button variant="text" onClick={addToDoHandler}>
+              <AddBoxIcon />
+              Add
+            </Button>
+          </Grid>
+        )}
+        {isSelectMode && (
+          <Grid
+            xs={6}
+            item
+            display="flex"
+            alignItems="center"
+            sx={{
+              paddingLeft: '10px',
+            }}
+          >
+            Selected: {selected.length}
+          </Grid>
+        )}
         <Grid xs={6} display="flex" justifyContent="end" item>
-          <Button variant="text" onClick={toggleSelectMode}>
+          <Button
+            variant="text"
+            onClick={() => {
+              if (isSelectMode) {
+                navigate(-1)
+              } else {
+                setSearchParams({ mode: 'select' })
+              }
+            }}
+          >
             <RuleIcon />
-            {isSelectMode ? "Unselect" : "Select"}
+            {isSelectMode ? 'Cancel' : 'Select'}
           </Button>
         </Grid>
       </Grid>

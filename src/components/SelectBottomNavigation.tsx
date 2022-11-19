@@ -1,18 +1,21 @@
 import { Delete as DeleteIcon, Done as DoneIcon } from '@mui/icons-material'
 import BottomNavigation from '@mui/material/BottomNavigation'
 import BottomNavigationAction from '@mui/material/BottomNavigationAction'
+import { useSearchParams } from 'react-router-dom'
 import { useStore } from '../app/store'
 import { deleteServerTodos, toggleServerTodos } from '../utils/api'
 
 function SelectBottomNavigation() {
-  const { selected, toggleSelectMode } = useStore()
+  const { selected } = useStore()
+  // eslint-disable-next-line
+  const [searchParams, setSearchParams] = useSearchParams()
 
   return (
     <BottomNavigation showLabels>
       <BottomNavigationAction
         onClick={async () => {
           await deleteServerTodos(selected)
-          toggleSelectMode()
+          setSearchParams({})
         }}
         label="Delete"
         icon={<DeleteIcon />}
@@ -20,7 +23,7 @@ function SelectBottomNavigation() {
       <BottomNavigationAction
         onClick={async () => {
           await toggleServerTodos(selected)
-          toggleSelectMode()
+          setSearchParams({})
         }}
         label="Complete"
         icon={<DoneIcon />}

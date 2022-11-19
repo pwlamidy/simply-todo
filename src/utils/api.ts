@@ -1,28 +1,28 @@
 import { Todo } from '../../types'
 
 export const fetchTodos = async () => {
-  const res = await fetch('http://127.0.0.1:5000/todos')
+  const res = await fetch('http://192.168.1.133:5000/todos')
   const data = await res.json()
 
   return data
 }
 
 export const fetchTodosByIds = async (ids: string[]) => {
-  const res = await fetch(`http://127.0.0.1:5000/todos?id=${ids.join(',')}`)
+  const res = await fetch(`http://192.168.1.133:5000/todos?id=${ids.join(',')}`)
   const data = await res.json()
 
   return data
 }
 
 export const fetchTodo = async (id: string) => {
-  const res = await fetch(`http://127.0.0.1:5000/todos/${id}`)
+  const res = await fetch(`http://192.168.1.133:5000/todos/${id}`)
   const data = await res.json()
 
   return data
 }
 
 export const addServerTodo = async (todo: Todo) => {
-  const res = await fetch('http://127.0.0.1:5000/todos', {
+  const res = await fetch('http://192.168.1.133:5000/todos', {
     method: 'POST',
     headers: {
       'Content-type': 'application/json',
@@ -40,7 +40,7 @@ export const addServerTodo = async (todo: Todo) => {
 }
 
 export const updateServerTodo = async (todo: Todo) => {
-  const res = await fetch(`http://127.0.0.1:5000/todos/${todo.id}`, {
+  const res = await fetch(`http://192.168.1.133:5000/todos/${todo.id}`, {
     method: 'PUT',
     headers: {
       'Content-type': 'application/json',
@@ -55,13 +55,13 @@ export const updateServerTodo = async (todo: Todo) => {
 
 export const deleteServerTodos = async (ids: Array<string>) => {
   console.log('delete multiple', ids)
-  // await fetch(`http://127.0.0.1:5000/todos?id=${ids.join(',')}`, {
+  // await fetch(`http://192.168.1.133:5000/todos?id=${ids.join(',')}`, {
   //   method: 'DELETE',
   // })
 }
 
 export const deleteServerTodo = async (id: string) => {
-  await fetch(`http://127.0.0.1:5000/todos/${id}`, {
+  await fetch(`http://192.168.1.133:5000/todos/${id}`, {
     method: 'DELETE',
   })
 }
@@ -70,7 +70,7 @@ export const toggleServerTodo = async (id: string) => {
   const todoToToggle = await fetchTodo(id)
   const updTodo = { ...todoToToggle, completed: !todoToToggle.completed }
 
-  const res = await fetch(`http://127.0.0.1:5000/todos/${id}`, {
+  const res = await fetch(`http://192.168.1.133:5000/todos/${id}`, {
     method: 'PUT',
     headers: {
       'Content-type': 'application/json',
@@ -92,7 +92,7 @@ export const toggleServerTodos = async (ids: string[]) => {
   //   updTodos.push({ ...t, completed: true })
   // });
 
-  // const res = await fetch(`http://127.0.0.1:5000/todos?id=${ids.join(',')}`, {
+  // const res = await fetch(`http://192.168.1.133:5000/todos?id=${ids.join(',')}`, {
   //   method: 'PUT',
   //   headers: {
   //     'Content-type': 'application/json',

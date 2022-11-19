@@ -5,20 +5,24 @@ import {
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import { IconButton, Input, ListItem, ListItemIcon } from '@mui/material'
-import { useEffect, useState } from 'react'
-import { Link as RouterLink } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link as RouterLink, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useStore } from '../app/store'
 import { toggleServerTodo } from '../utils/api'
 
 function ToDoItem({ id, title, ontTitleChangeHandler }: any) {
-  const { todos, toggleComplete, isSelectMode, addSelected, selected } =
-    useStore()
+  const { todos, toggleComplete, toggleSelected, selected } = useStore()
   const [currTodo, setCurrTodo] = useState<Todo>()
+  const [searchParams] = useSearchParams()
 
   useEffect(() => {
     setCurrTodo(todos.find((t) => t.id === id))
   }, [todos, id])
+
+  const isSelectMode = useMemo(() => {
+    return new URLSearchParams(searchParams).get('mode') === 'select'
+  }, [searchParams])
 
   return (
     <ListItem
@@ -50,7 +54,7 @@ function ToDoItem({ id, title, ontTitleChangeHandler }: any) {
         </ListItemIcon>
       )}
       {isSelectMode && (
-        <ListItemIcon onClick={() => addSelected(id)}>
+        <ListItemIcon onClick={() => toggleSelected(id)}>
           {currTodo?.id && selected.indexOf(currTodo?.id) > -1 ? (
             <CheckCircleIcon />
           ) : (
@@ -59,6 +63,7 @@ function ToDoItem({ id, title, ontTitleChangeHandler }: any) {
         </ListItemIcon>
       )}
       <Input
+        disabled={isSelectMode}
         value={title}
         onChange={(e) => ontTitleChangeHandler(e.target.value)}
         fullWidth={true}
