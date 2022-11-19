@@ -3,9 +3,11 @@
     {
       "title": "",
       "createdAt": "2022-11-19T17:44:15.761Z",
-      "lastUpdatedAt": "2022-11-19T17:44:15.761Z",
+      "lastUpdatedAt": "2022-11-19T18:32:30.073Z",
       "id": 2,
-      "details": "gregdcdcfas"
+      "details": "gregdcdcfas",
+      "date": "2022-11-19T18:32:24.655Z",
+      "time": "2022-11-19T18:32:27.000Z"
     },
     {
       "title": "sdwdwdwewfreg",
@@ -62,7 +64,8 @@
       "title": "",
       "createdAt": "2022-11-19T17:59:17.313Z",
       "lastUpdatedAt": "2022-11-19T17:59:17.313Z",
-      "id": 11
+      "id": 11,
+      "completed": false
     },
     {
       "title": "",
@@ -129,6 +132,12 @@
       "createdAt": "2022-11-19T17:59:18.914Z",
       "lastUpdatedAt": "2022-11-19T17:59:18.914Z",
       "id": 22
+    },
+    {
+      "title": "",
+      "createdAt": "2022-11-19T19:41:31.938Z",
+      "lastUpdatedAt": "2022-11-19T19:41:31.938Z",
+      "id": 23
     }
   ]
 }

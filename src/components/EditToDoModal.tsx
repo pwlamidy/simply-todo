@@ -164,7 +164,7 @@ function EditToDoModal() {
         <List>
           <ListItem>
             <TextField
-              label="title"
+              label="Title"
               fullWidth
               value={currTodo?.title || ''}
               onChange={(e) => handleTitleChange(e.target.value)}
@@ -174,7 +174,7 @@ function EditToDoModal() {
             <TextField
               multiline
               fullWidth
-              placeholder="details"
+              placeholder="Details"
               minRows={2}
               value={currTodo?.details || ''}
               onChange={(e) => handleDetailsChange(e.target.value)}
@@ -254,7 +254,7 @@ function EditToDoModal() {
           </Grid>
           <ListItem>
             <TextField
-              label="location"
+              label="Location"
               fullWidth
               value={currTodo?.location || ''}
               onChange={(e) => handleLocationChange(e.target.value)}

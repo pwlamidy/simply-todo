@@ -1,6 +1,5 @@
-import { AddBox } from '@mui/icons-material'
-import { Button, List } from '@mui/material'
-import { Box } from '@mui/system'
+import { AddBox as AddBoxIcon, Rule as RuleIcon } from '@mui/icons-material'
+import { Button, Grid, List } from '@mui/material'
 import { useEffect } from 'react'
 import { Todo } from '../../types'
 import { useStore } from '../app/store'
@@ -9,7 +8,8 @@ import EditToDoModal from './EditToDoModal'
 import ToDoItem from './ToDoItem'
 
 function ToDoItemList() {
-  const { todos, initTodos, addTodo, updateTodo } = useStore()
+  const { todos, initTodos, addTodo, updateTodo, isSelectMode } = useStore()
+  const { toggleSelectMode } = useStore()
 
   useEffect(() => {
     const getTodos = async () => {
@@ -22,17 +22,16 @@ function ToDoItemList() {
   }, [initTodos])
 
   const addToDoHandler = async () => {
-    const todo = await addServerTodo({
-      title: '',
-      createdAt: new Date(),
-      lastUpdatedAt: new Date(),
-    } as Todo)
+    const todo = await addServerTodo({ title: '' } as Todo)
     addTodo(todo)
   }
 
   const ontTitleChangeHandler = async (id: string, titleText: string) => {
     const todoInEdit = todos.find((t) => t.id === id)
-    const updTodo = { ...todoInEdit, title: titleText, lastUpdatedAt: new Date() } as Todo
+    const updTodo = {
+      ...todoInEdit,
+      title: titleText,
+    } as Todo
     await updateServerTodo(updTodo)
     updateTodo(updTodo)
   }
@@ -52,7 +51,8 @@ function ToDoItemList() {
         ))}
       </List>
       <EditToDoModal />
-      <Box
+      <Grid
+        container
         sx={{
           position: 'fixed',
           bottom: '56px',
@@ -61,11 +61,19 @@ function ToDoItemList() {
           backgroundColor: '#ffffff',
         }}
       >
-        <Button variant="text" onClick={addToDoHandler}>
-          <AddBox />
-          Add
-        </Button>
-      </Box>
+        <Grid xs={6} item>
+          <Button variant="text" onClick={addToDoHandler}>
+            <AddBoxIcon />
+            Add
+          </Button>
+        </Grid>
+        <Grid xs={6} display="flex" justifyContent="end" item>
+          <Button variant="text" onClick={toggleSelectMode}>
+            <RuleIcon />
+            {isSelectMode ? "Unselect" : "Select"}
+          </Button>
+        </Grid>
+      </Grid>
     </>
   )
 }

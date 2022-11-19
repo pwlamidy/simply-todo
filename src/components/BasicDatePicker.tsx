@@ -14,7 +14,7 @@ export default function BasicDatePicker({ handleDateChange, value }: Props) {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DatePicker
         disabled={value === null || value === undefined}
-        label="Date"
+        label={value === null || value === undefined ? "Date not enabled" : "Date"}
         inputFormat="DD/MM/YYYY"
         value={value}
         onChange={(newValue: any) => {

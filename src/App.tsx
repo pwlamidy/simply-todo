@@ -1,11 +1,15 @@
 import { Box, CssBaseline, Paper } from '@mui/material'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import './App.css'
+import { useStore } from './app/store'
 import EditToDoModal from './components/EditToDoModal'
+import SelectBottomNavigation from './components/SelectBottomNavigation'
 import SimpleBottomNavigation from './components/SimpleBottomNavigation'
 import ToDoItemList from './components/ToDoItemList'
 
 function App() {
+  const { isSelectMode } = useStore()
+
   return (
     <Router>
       <Box sx={{ pb: 7 }}>
@@ -19,7 +23,8 @@ function App() {
           sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}
           elevation={3}
         >
-          <SimpleBottomNavigation />
+          {!isSelectMode && <SimpleBottomNavigation />}
+          {isSelectMode && <SelectBottomNavigation />}
         </Paper>
       </Box>
     </Router>

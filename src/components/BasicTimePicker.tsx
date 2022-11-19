@@ -14,7 +14,7 @@ export default function BasicTimePicker({ handleTimeChange, value }: Props) {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <TimePicker
         disabled={value === null || value === undefined}
-        label="Time"
+        label={value === null || value === undefined ? "Time not enabled" : "Time"}
         value={value}
         onChange={(newValue) => {
           handleTimeChange(newValue)
