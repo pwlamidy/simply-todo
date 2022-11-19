@@ -9,5 +9,7 @@ export interface Todo {
   needDate: boolean,
   needTime: boolean,
   location?: string,
-  completed?: boolean
+  completed?: boolean,
+  createdAt: Date,
+  lastUpdatedAt: Date
 }

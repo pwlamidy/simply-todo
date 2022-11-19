@@ -4,8 +4,9 @@ import { Todo } from '../../types'
 export interface TodosSlice {
   todos: Todo[]
   initTodos: (todos: Todo[]) => void
-  addTodo: () => void
+  addTodo: (todo: Todo) => void
   updateTodo: (todo: Todo) => void
+  deleteTodo: (id: string) => void
   toggleComplete: (id: string) => void
 }
 
@@ -16,25 +17,24 @@ export const createTodosSlice: StateCreator<
   TodosSlice
 > = (set) => ({
   todos: [],
-  initTodos: (todos: Todo[]) =>
+  initTodos: async (todos) => {
     set(
       (state) => ({
         todos: todos,
       }),
       false,
       'initTodos'
-    ),
-  addTodo: () =>
+    )
+  },
+  addTodo: async (todo) => {
     set(
       (state) => ({
-        todos: [
-          { id: state.todos.length.toString(), title: '' } as Todo,
-          ...state.todos,
-        ],
+        todos: [todo, ...state.todos],
       }),
       false,
       'addTodo'
-    ),
+    )
+  },
   updateTodo: (todo) =>
     set(
       (state) => ({
@@ -49,6 +49,15 @@ export const createTodosSlice: StateCreator<
       false,
       'updateTodo'
     ),
+  deleteTodo: async (id) => {
+    set(
+      (state) => ({
+        todos: state.todos.filter((t) => t.id !== id),
+      }),
+      false,
+      'deleteTodo'
+    )
+  },
   toggleComplete: (id) =>
     set(
       (state) => ({

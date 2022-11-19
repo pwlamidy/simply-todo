@@ -4,6 +4,7 @@ import { Box } from '@mui/system'
 import { useEffect } from 'react'
 import { Todo } from '../../types'
 import { useStore } from '../app/store'
+import { addServerTodo, fetchTodos, updateServerTodo } from '../utils/api'
 import EditToDoModal from './EditToDoModal'
 import ToDoItem from './ToDoItem'
 
@@ -11,26 +12,31 @@ function ToDoItemList() {
   const { todos, initTodos, addTodo, updateTodo } = useStore()
 
   useEffect(() => {
-    initTodos(
-      [...Array(10)].map((_, i) => {
-        return {
-          id: `${i}`,
-          title: 'test',
-          date: new Date(),
-          time: new Date(),
-        }
-      }) as Todo[]
-    )
-  }, [])
+    const getTodos = async () => {
+      const todos = await fetchTodos()
 
-  const addToDoHandler = () => {
-    addTodo()
+      initTodos(todos)
+    }
+
+    getTodos()
+  }, [initTodos])
+
+  const addToDoHandler = async () => {
+    const todo = await addServerTodo({
+      title: '',
+      createdAt: new Date(),
+      lastUpdatedAt: new Date(),
+    } as Todo)
+    addTodo(todo)
   }
 
-  const ontTitleChangeHandler = (id: string, titleText: string) => {
+  const ontTitleChangeHandler = async (id: string, titleText: string) => {
     const todoInEdit = todos.find((t) => t.id === id)
-    updateTodo({ ...todoInEdit, title: titleText } as Todo)
+    const updTodo = { ...todoInEdit, title: titleText, lastUpdatedAt: new Date() } as Todo
+    await updateServerTodo(updTodo)
+    updateTodo(updTodo)
   }
+
   return (
     <>
       <List sx={{ marginBottom: '60px' }}>

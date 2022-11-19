@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useStore } from '../app/store'
+import { toggleServerTodo } from '../utils/api'
 
 function ToDoItem({ id, title, ontTitleChangeHandler }: any) {
   const { todos, toggleComplete } = useStore()
@@ -29,7 +30,8 @@ function ToDoItem({ id, title, ontTitleChangeHandler }: any) {
       }
     >
       <ListItemIcon
-        onClick={() => {
+        onClick={async () => {
+          await toggleServerTodo(id)
           toggleComplete(id)
         }}
       >

@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 
-export default function AlertDialog({ open, handleClose }: any) {
+export default function AlertDialog({ open, handleClose, handleConfirm }: any) {
   return (
     <div>
       <Dialog
@@ -16,7 +16,7 @@ export default function AlertDialog({ open, handleClose }: any) {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Are you sure to delete?"}
+          {'Are you sure to delete?'}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -25,7 +25,10 @@ export default function AlertDialog({ open, handleClose }: any) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>No</Button>
-          <Button onClick={handleClose} autoFocus>
+          <Button
+            onClick={handleConfirm}
+            autoFocus
+          >
             Yes
           </Button>
         </DialogActions>
