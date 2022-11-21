@@ -8,7 +8,7 @@ import { IconButton, Input, ListItem, ListItemIcon } from '@mui/material'
 import { useEffect, useMemo, useState } from 'react'
 import { Link as RouterLink, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
-import { useStore } from '../app/store'
+import { useStore } from '../store'
 import { toggleServerTodo } from '../utils/api'
 
 function ToDoItem({ id, title, ontTitleChangeHandler }: any) {

@@ -2,7 +2,7 @@ import { Delete as DeleteIcon, Done as DoneIcon } from '@mui/icons-material'
 import BottomNavigation from '@mui/material/BottomNavigation'
 import BottomNavigationAction from '@mui/material/BottomNavigationAction'
 import { useSearchParams } from 'react-router-dom'
-import { useStore } from '../app/store'
+import { useStore } from '../store'
 import { deleteServerTodos, toggleServerTodos } from '../utils/api'
 
 function SelectBottomNavigation() {

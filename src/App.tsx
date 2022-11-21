@@ -6,6 +6,7 @@ import {
   useSearchParams
 } from 'react-router-dom'
 import './App.css'
+import CalendarView from './components/CalendarView'
 import EditToDoModal from './components/EditToDoModal'
 import SelectBottomNavigation from './components/SelectBottomNavigation'
 import SimpleBottomNavigation from './components/SimpleBottomNavigation'
@@ -23,7 +24,7 @@ function App() {
       <CssBaseline />
       <Routes>
         <Route path="/" element={<ToDoItemList />}></Route>
-        <Route path="/calendar" element={<div>test</div>}></Route>
+        <Route path="/calendar" element={<CalendarView />}></Route>
         <Route path="/edit/:id" element={<EditToDoModal />}></Route>
       </Routes>
       <Paper
