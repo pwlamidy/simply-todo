@@ -41,15 +41,15 @@ function ToDoItemList() {
     if (!id) {
       const todo = await addServerTodo({ title: titleText } as Todo)
       updateTodo(todo)
+    } else {
+      const todoInEdit = todos.find((t) => t.id === id)
+      const updTodo = {
+        ...todoInEdit,
+        title: titleText,
+      } as Todo
+      await updateServerTodo(updTodo)
+      updateTodo(updTodo)
     }
-
-    const todoInEdit = todos.find((t) => t.id === id)
-    const updTodo = {
-      ...todoInEdit,
-      title: titleText,
-    } as Todo
-    await updateServerTodo(updTodo)
-    updateTodo(updTodo)
   }
 
   const isSelectMode = useMemo(() => {

@@ -67,7 +67,7 @@ function CalendarView() {
     }
 
     getTodos()
-  }, [initMonthlyTodos, initTodos])
+  }, [searchParams, initMonthlyTodos, initTodos])
 
   return (
     <Box>
