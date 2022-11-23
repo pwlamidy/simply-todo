@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useStore } from '../store'
 import { addServerTodo, fetchTodos, updateServerTodo } from '../utils/api'
+import { debounce } from '../utils/helper'
 import EditToDoModal from './EditToDoModal'
 import ToDoItem from './ToDoItem'
 
@@ -36,7 +37,7 @@ function ToDoItemList() {
     }
   }
 
-  const ontTitleChangeHandler = async (id: string, titleText: string) => {
+  const onTitleChangeHandler = async (id: string, titleText: string) => {
     // Create server todo if new todo
     if (!id) {
       const todo = await addServerTodo({ title: titleText } as Todo)
@@ -70,8 +71,8 @@ function ToDoItemList() {
             key={index}
             id={id}
             title={title}
-            ontTitleChangeHandler={(titleText: string) =>
-              ontTitleChangeHandler(id, titleText)
+            onTitleChangeHandler={(titleText: string) =>
+              onTitleChangeHandler(id, titleText)
             }
           />
         ))}

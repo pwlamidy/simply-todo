@@ -36,7 +36,7 @@ function CalendarView() {
     [selectedDate]
   )
 
-  const ontTitleChangeHandler = async (id: string, titleText: string) => {
+  const onTitleChangeHandler = async (id: string, titleText: string) => {
     const todoInEdit = todos.find((t) => t.id === id)
     const updTodo = {
       ...todoInEdit,
@@ -115,8 +115,8 @@ function CalendarView() {
               key={index}
               id={id}
               title={title}
-              ontTitleChangeHandler={(titleText: string) =>
-                ontTitleChangeHandler(id, titleText)
+              onTitleChangeHandler={(titleText: string) =>
+                onTitleChangeHandler(id, titleText)
               }
             />
           ))}

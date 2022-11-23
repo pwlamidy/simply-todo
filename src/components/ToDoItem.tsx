@@ -14,10 +14,10 @@ import { toggleServerTodo } from '../utils/api'
 type Props = {
   id: string
   title: string
-  ontTitleChangeHandler: Function
+  onTitleChangeHandler: Function
 }
 
-function ToDoItem({ id, title, ontTitleChangeHandler }: Props) {
+function ToDoItem({ id, title, onTitleChangeHandler }: Props) {
   const { todos, toggleComplete, toggleSelected, selected } = useStore()
   const [currTodo, setCurrTodo] = useState<Todo>()
   const [searchParams] = useSearchParams()
@@ -73,7 +73,7 @@ function ToDoItem({ id, title, ontTitleChangeHandler }: Props) {
         placeholder="(Please input title)"
         disabled={isSelectMode}
         value={title}
-        onChange={(e) => ontTitleChangeHandler(e.target.value)}
+        onChange={(e) => onTitleChangeHandler(e.target.value)}
         fullWidth={true}
       />
     </ListItem>
