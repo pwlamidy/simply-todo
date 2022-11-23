@@ -1,32 +1,130 @@
-import { Box, List, Typography } from '@mui/material'
-import { Dayjs } from 'dayjs'
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
+import { Box, List } from '@mui/material'
+import dayjs, { Dayjs } from 'dayjs'
+import { useEffect, useMemo, useState } from 'react'
+import { Todo } from '../../types'
 import { useStore } from '../store'
+import { fetchTodos, updateServerTodo } from '../utils/api'
 import BasicStaticDatePicker from './BasicStaticDatePicker'
 import ToDoItem from './ToDoItem'
 
 function CalendarView() {
-  const { todos } = useStore()
+  const { todos, initTodos, updateTodo, monthlyTodos, initMonthlyTodos } =
+    useStore()
+  const [selectedDate, setSelectedDate] = useState(dayjs())
 
-  const handleDateChange = (d: Dayjs) => {
-    console.log(d.format('DD/MM/YYYY'))
+  const handleDateChange = async (d: Dayjs) => {
+    setSelectedDate(d)
+
+    const todos = await fetchTodos(d.startOf('day'), d.endOf('day'))
+
+    initTodos(todos)
   }
+
+  const handleMonthChange = async (m: Dayjs) => {
+    const monthlyTodos = await fetchTodos(m.startOf('month'), m.endOf('month'))
+
+    initMonthlyTodos(monthlyTodos)
+  }
+
+  const isToday = useMemo(
+    () => selectedDate.format('DD-MM-YYYY') !== dayjs().format('DD-MM-YYYY'),
+    [selectedDate]
+  )
+
+  const ontTitleChangeHandler = async (id: string, titleText: string) => {
+    const todoInEdit = todos.find((t) => t.id === id)
+    const updTodo = {
+      ...todoInEdit,
+      title: titleText,
+    } as Todo
+    await updateServerTodo(updTodo)
+    updateTodo(updTodo)
+  }
+
+  useEffect(() => {
+    const getTodos = async () => {
+      const monthlyTodos = await fetchTodos(
+        dayjs().startOf('month'),
+        dayjs().endOf('month')
+      )
+
+      initMonthlyTodos(monthlyTodos)
+
+      const todos = await fetchTodos(
+        dayjs().startOf('day'),
+        dayjs().endOf('day')
+      )
+
+      initTodos(todos)
+    }
+
+    getTodos()
+  }, [initMonthlyTodos, initTodos])
 
   return (
     <Box>
-      <BasicStaticDatePicker handleDateChange={handleDateChange} />
-
-      <List sx={{ marginBottom: '60px' }}>
-        {todos.map(({ id, title }, index) => (
-          <Typography
-            key={index}
-            sx={{ mt: 4, mb: 2 }}
-            variant="h6"
-            component="div"
-          >
-            {title}
-          </Typography>
-        ))}
-      </List>
+      <BasicStaticDatePicker
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+        handleDateChange={handleDateChange}
+        handleMonthChange={handleMonthChange}
+        monthlyTodos={monthlyTodos}
+      />
+      <Box
+        sx={{
+          p: 2,
+          height: '5%',
+          fontSize: 18,
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+          }}
+          onClick={() => {
+            if (isToday) {
+              setSelectedDate(dayjs())
+              handleDateChange(dayjs())
+            }
+          }}
+        >
+          {isToday && <ArrowBackIosNewIcon sx={{ paddingRight: 1 }} />}
+          {selectedDate.format('DD-MM-YYYY')}
+        </div>
+      </Box>
+      {todos.length > 0 && (
+        <List
+          sx={{
+            marginBottom: '60px',
+            position: 'absolute',
+            width: '100%',
+            height: '45%',
+            overflow: 'auto',
+          }}
+        >
+          {todos.map(({ id, title }, index) => (
+            <ToDoItem
+              key={index}
+              id={id}
+              title={title}
+              ontTitleChangeHandler={(titleText: string) =>
+                ontTitleChangeHandler(id, titleText)
+              }
+            />
+          ))}
+        </List>
+      )}
+      {todos.length === 0 && (
+        <Box
+          sx={{
+            p: 2,
+            textAlign: 'center',
+          }}
+        >
+          <div>Nothing todo :&#41;</div>
+        </Box>
+      )}
     </Box>
   )
 }

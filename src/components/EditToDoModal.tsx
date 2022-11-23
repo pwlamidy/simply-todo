@@ -116,7 +116,6 @@ function EditToDoModal() {
 
   const handleClose = () => {
     setOpenAlert(false)
-    navigate(-1)
   }
 
   const handleDeleteConfirm = async () => {
@@ -125,6 +124,7 @@ function EditToDoModal() {
       deleteTodo(id)
     }
     handleClose()
+    navigate(-1)
   }
 
   return (

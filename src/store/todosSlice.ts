@@ -8,6 +8,8 @@ export interface TodosSlice {
   updateTodo: (todo: Todo) => void
   deleteTodo: (id: string) => void
   toggleComplete: (id: string) => void
+  monthlyTodos: Todo[]
+  initMonthlyTodos: (todos: Todo[]) => void
 }
 
 export const createTodosSlice: StateCreator<
@@ -72,4 +74,14 @@ export const createTodosSlice: StateCreator<
       false,
       'toggleComplete'
     ),
+  monthlyTodos: [],
+  initMonthlyTodos: async (todos) => {
+    set(
+      (state) => ({
+        monthlyTodos: todos,
+      }),
+      false,
+      'initMonthlyTodos'
+    )
+  },
 })

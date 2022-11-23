@@ -6,7 +6,7 @@ import { useStore } from '../store'
 import { deleteServerTodos, toggleServerTodos } from '../utils/api'
 
 function SelectBottomNavigation() {
-  const { selected } = useStore()
+  const { selected, initTodos, todos, toggleComplete } = useStore()
   // eslint-disable-next-line
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -15,6 +15,7 @@ function SelectBottomNavigation() {
       <BottomNavigationAction
         onClick={async () => {
           await deleteServerTodos(selected)
+          initTodos(todos.filter(t => selected.indexOf(t.id) === -1))
           setSearchParams({})
         }}
         label="Delete"
@@ -23,6 +24,7 @@ function SelectBottomNavigation() {
       <BottomNavigationAction
         onClick={async () => {
           await toggleServerTodos(selected)
+          selected.forEach(s => toggleComplete(s))
           setSearchParams({})
         }}
         label="Complete"

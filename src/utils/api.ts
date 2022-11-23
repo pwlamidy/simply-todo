@@ -1,14 +1,38 @@
+import { Dayjs } from 'dayjs'
 import { Todo } from '../../types'
 
-export const fetchTodos = async () => {
-  const res = await fetch('http://192.168.1.133:5000/todos')
+export const fetchTodos = async (start?: Dayjs, end?: Dayjs) => {
+  const queryParams = [
+    {
+      createdAt_gte: start ? start.toISOString() : '',
+    },
+    {
+      createdAt_lte: end ? end.toISOString() : '',
+    },
+    {
+      _sort: 'id',
+    },
+    {
+      _order: 'desc',
+    },
+  ]
+    .filter((p) => Object.values(p)[0])
+    .map((v) => `${Object.keys(v)[0]}=${Object.values(v)[0]}`)
+    .join('&')
+
+  const res = await fetch(
+    'http://192.168.1.133:5000/todos' +
+      (queryParams.length > 0 ? `?${queryParams}` : '')
+  )
   const data = await res.json()
 
   return data
 }
 
-export const fetchTodosByIds = async (ids: string[]) => {
-  const res = await fetch(`http://192.168.1.133:5000/todos?id=${ids.join(',')}`)
+const fetchTodosByIds = async (ids: string[]) => {
+  const res = await fetch(
+    `http://192.168.1.133:5000/todos?id=${ids.join('&id=')}`
+  )
   const data = await res.json()
 
   return data
@@ -27,11 +51,7 @@ export const addServerTodo = async (todo: Todo) => {
     headers: {
       'Content-type': 'application/json',
     },
-    body: JSON.stringify({
-      ...todo,
-      createdAt: new Date(),
-      lastUpdatedAt: new Date(),
-    }),
+    body: JSON.stringify(todo),
   })
 
   const data = await res.json()
@@ -45,7 +65,7 @@ export const updateServerTodo = async (todo: Todo) => {
     headers: {
       'Content-type': 'application/json',
     },
-    body: JSON.stringify({ ...todo, lastUpdatedAt: new Date() }),
+    body: JSON.stringify(todo),
   })
 
   const data = await res.json()
@@ -54,10 +74,9 @@ export const updateServerTodo = async (todo: Todo) => {
 }
 
 export const deleteServerTodos = async (ids: Array<string>) => {
-  console.log('delete multiple', ids)
-  // await fetch(`http://192.168.1.133:5000/todos?id=${ids.join(',')}`, {
-  //   method: 'DELETE',
-  // })
+  await fetch(`http://192.168.1.133:5000/todos?id=${ids.join('&id=')}`, {
+    method: 'DELETE',
+  })
 }
 
 export const deleteServerTodo = async (id: string) => {
@@ -86,21 +105,24 @@ export const toggleServerTodo = async (id: string) => {
 export const toggleServerTodos = async (ids: string[]) => {
   console.log('toggle multiple todo as completed', ids)
 
-  // const todosToToggle = await fetchTodosByIds(ids) as Todo[]
-  // const updTodos = [] as Todo[]
-  // todosToToggle.forEach(t => {
-  //   updTodos.push({ ...t, completed: true })
-  // });
+  const todosToToggle = (await fetchTodosByIds(ids)) as Todo[]
+  const updTodos = [] as Todo[]
+  todosToToggle.forEach((t) => {
+    updTodos.push({ ...t, completed: true })
+  })
 
-  // const res = await fetch(`http://192.168.1.133:5000/todos?id=${ids.join(',')}`, {
-  //   method: 'PUT',
-  //   headers: {
-  //     'Content-type': 'application/json',
-  //   },
-  //   body: JSON.stringify(updTodos),
-  // })
+  const res = await fetch(
+    `http://192.168.1.133:5000/todos?id=${ids.join('&id=')}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify(todosToToggle),
+    }
+  )
 
-  // const data = await res.json()
+  const data = await res.json()
 
-  // return data
+  return data
 }
