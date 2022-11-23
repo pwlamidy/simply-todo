@@ -15,7 +15,12 @@ import { forwardRef, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useStore } from '../store'
-import { deleteServerTodo, fetchTodo, updateServerTodo } from '../utils/api'
+import {
+  addServerTodo,
+  deleteServerTodo,
+  fetchTodo,
+  updateServerTodo,
+} from '../utils/api'
 import AlertDialog from './AlertDialog'
 import BasicDatePicker from './BasicDatePicker'
 import BasicTimePicker from './BasicTimePicker'
@@ -35,7 +40,7 @@ function EditToDoModal() {
   const { pathname } = useLocation()
   const { id } = useParams()
   const { updateTodo, deleteTodo } = useStore()
-  const [currTodo, setCurrTodo] = useState<Todo>()
+  const [currTodo, setCurrTodo] = useState<Todo>({} as Todo)
   const [dateVal, setDateVal] = useState<Dayjs | null>(null)
   const [timeVal, setTimeVal] = useState<Dayjs | null>(null)
 
@@ -45,7 +50,7 @@ function EditToDoModal() {
       setCurrTodo(todo)
     }
 
-    if (id) {
+    if (id && id !== 'undefined') {
       getTodo()
     }
   }, [id])
@@ -152,8 +157,19 @@ function EditToDoModal() {
               autoFocus
               color="inherit"
               onClick={async () => {
-                await updateServerTodo(currTodo!)
-                updateTodo(currTodo!)
+                if (!currTodo?.id) {
+                  // New todo
+                  if (!currTodo.title) {
+                    // Force title
+                    await addServerTodo({ ...currTodo, title: 'New Todo' })
+                  } else {
+                    await addServerTodo(currTodo!)
+                  }
+
+                } else {
+                  await updateServerTodo(currTodo!)
+                  updateTodo(currTodo!)
+                }
                 navigate(-1)
               }}
             >
@@ -272,7 +288,11 @@ function EditToDoModal() {
           </ListItem>
         </List>
       </Dialog>
-      <AlertDialog handleClose={handleClose} open={openAlert} handleConfirm={handleDeleteConfirm} />
+      <AlertDialog
+        handleClose={handleClose}
+        open={openAlert}
+        handleConfirm={handleDeleteConfirm}
+      />
     </div>
   )
 }

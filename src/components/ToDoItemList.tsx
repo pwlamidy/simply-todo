@@ -24,12 +24,25 @@ function ToDoItemList() {
     getTodos()
   }, [initTodos])
 
+  const scrollToTop = () => {
+    window.scrollTo(0, 0)
+  }
+
   const addToDoHandler = async () => {
-    const todo = await addServerTodo({ title: '' } as Todo)
-    addTodo(todo)
+    const hasEmptyTodo = todos.findIndex((t) => !t.title) !== -1
+    if (!hasEmptyTodo) {
+      addTodo({ title: '' } as Todo)
+      scrollToTop()
+    }
   }
 
   const ontTitleChangeHandler = async (id: string, titleText: string) => {
+    // Create server todo if new todo
+    if (!id) {
+      const todo = await addServerTodo({ title: titleText } as Todo)
+      updateTodo(todo)
+    }
+
     const todoInEdit = todos.find((t) => t.id === id)
     const updTodo = {
       ...todoInEdit,

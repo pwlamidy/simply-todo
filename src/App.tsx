@@ -18,7 +18,8 @@ function App() {
   return (
     <Box sx={{ pb: 7 }}>
       <CssBaseline />
-      <Box
+      <Paper
+        elevation={1}
         sx={{
           position: 'fixed',
           top: 0,
@@ -29,13 +30,12 @@ function App() {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#f5f5f5',
           zIndex: 1,
           textTransform: 'uppercase'
         }}
       >
         {isSelectMode ? 'Select Todo' : 'Todo'}
-      </Box>
+      </Paper>
       <Box
         sx={{
           marginTop: '40px',

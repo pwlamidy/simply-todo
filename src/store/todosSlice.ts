@@ -37,17 +37,24 @@ export const createTodosSlice: StateCreator<
       'addTodo'
     )
   },
-  updateTodo: (todo) =>
+  updateTodo: (todo) => 
     set(
-      (state) => ({
-        todos: state.todos.map((t) => {
-          if (t.id === todo.id) {
-            return todo
-          } else {
-            return t
-          }
-        }),
-      }),
+      (state) => {
+        const ids = state.todos.map(t => t.id)
+    
+        return ({
+          todos: state.todos.map((t) => {
+            if (t.id === todo.id) {
+              return todo
+            } else if (!t.id && ids.indexOf(todo.id) === -1) {
+              // Update new todo
+              return todo
+            } else {
+              return t
+            }
+          }),
+        })
+      },
       false,
       'updateTodo'
     ),

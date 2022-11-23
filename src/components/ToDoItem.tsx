@@ -1,6 +1,6 @@
 import {
   CheckCircle as CheckCircleIcon,
-  More as MoreIcon,
+  More as MoreIcon
 } from '@mui/icons-material'
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
@@ -11,7 +11,13 @@ import { Todo } from '../../types'
 import { useStore } from '../store'
 import { toggleServerTodo } from '../utils/api'
 
-function ToDoItem({ id, title, ontTitleChangeHandler }: any) {
+type Props = {
+  id: string
+  title: string
+  ontTitleChangeHandler: Function
+}
+
+function ToDoItem({ id, title, ontTitleChangeHandler }: Props) {
   const { todos, toggleComplete, toggleSelected, selected } = useStore()
   const [currTodo, setCurrTodo] = useState<Todo>()
   const [searchParams] = useSearchParams()
@@ -63,6 +69,8 @@ function ToDoItem({ id, title, ontTitleChangeHandler }: any) {
         </ListItemIcon>
       )}
       <Input
+        inputRef={input => input && currTodo?.id === todos[0].id && currTodo?.title === '' && input.focus()}
+        placeholder="(Please input title)"
         disabled={isSelectMode}
         value={title}
         onChange={(e) => ontTitleChangeHandler(e.target.value)}
