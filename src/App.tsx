@@ -1,10 +1,6 @@
 import { Box, CssBaseline, Paper } from '@mui/material'
 import { useMemo } from 'react'
-import {
-  Route,
-  Routes,
-  useSearchParams
-} from 'react-router-dom'
+import { Route, Routes, useSearchParams } from 'react-router-dom'
 import './App.css'
 import CalendarView from './components/CalendarView'
 import EditToDoModal from './components/EditToDoModal'
@@ -22,11 +18,35 @@ function App() {
   return (
     <Box sx={{ pb: 7 }}>
       <CssBaseline />
-      <Routes>
-        <Route path="/" element={<ToDoItemList />}></Route>
-        <Route path="/calendar" element={<CalendarView />}></Route>
-        <Route path="/edit/:id" element={<EditToDoModal />}></Route>
-      </Routes>
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          maxHeight: '40px',
+          height: '40px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#f5f5f5',
+          zIndex: 1,
+          textTransform: 'uppercase'
+        }}
+      >
+        {isSelectMode ? 'Select Todo' : 'Todo'}
+      </Box>
+      <Box
+        sx={{
+          marginTop: '40px',
+        }}
+      >
+        <Routes>
+          <Route path="/" element={<ToDoItemList />}></Route>
+          <Route path="/calendar" element={<CalendarView />}></Route>
+          <Route path="/edit/:id" element={<EditToDoModal />}></Route>
+        </Routes>
+      </Box>
       <Paper
         sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}
         elevation={3}

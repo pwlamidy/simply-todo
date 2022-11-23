@@ -2,6 +2,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { Box, List } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useStore } from '../store'
 import { fetchTodos, updateServerTodo } from '../utils/api'
@@ -12,8 +13,11 @@ function CalendarView() {
   const { todos, initTodos, updateTodo, monthlyTodos, initMonthlyTodos } =
     useStore()
   const [selectedDate, setSelectedDate] = useState(dayjs())
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const handleDateChange = async (d: Dayjs) => {
+    setSearchParams(() => ({ date: d.format('YYYY-MM-DD') }))
+
     setSelectedDate(d)
 
     const todos = await fetchTodos(d.startOf('day'), d.endOf('day'))
@@ -44,16 +48,19 @@ function CalendarView() {
 
   useEffect(() => {
     const getTodos = async () => {
+      const currDate = dayjs(new URLSearchParams(searchParams).get('date') || Date.now())
+      setSelectedDate(currDate)
+
       const monthlyTodos = await fetchTodos(
-        dayjs().startOf('month'),
-        dayjs().endOf('month')
+        currDate.startOf('month'),
+        currDate.endOf('month')
       )
 
       initMonthlyTodos(monthlyTodos)
 
       const todos = await fetchTodos(
-        dayjs().startOf('day'),
-        dayjs().endOf('day')
+        currDate.startOf('day'),
+        currDate.endOf('day')
       )
 
       initTodos(todos)
@@ -96,7 +103,7 @@ function CalendarView() {
       {todos.length > 0 && (
         <List
           sx={{
-            marginBottom: '60px',
+            paddingBottom: '60px',
             position: 'absolute',
             width: '100%',
             height: '45%',
