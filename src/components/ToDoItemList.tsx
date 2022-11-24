@@ -5,7 +5,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useStore } from '../store'
 import { addServerTodo, fetchTodos, updateServerTodo } from '../utils/api'
-import { debounce } from '../utils/helper'
 import EditToDoModal from './EditToDoModal'
 import ToDoItem from './ToDoItem'
 
@@ -71,6 +70,7 @@ function ToDoItemList() {
             key={index}
             id={id}
             title={title}
+            shouldFocus={id === todos[0].id && title === ''}
             onTitleChangeHandler={(titleText: string) =>
               onTitleChangeHandler(id, titleText)
             }

@@ -39,7 +39,7 @@ function EditToDoModal() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { id } = useParams()
-  const { updateTodo, deleteTodo } = useStore()
+  const { deleteTodo } = useStore()
   const [currTodo, setCurrTodo] = useState<Todo>({} as Todo)
   const [dateVal, setDateVal] = useState<Dayjs | null>(null)
   const [timeVal, setTimeVal] = useState<Dayjs | null>(null)
