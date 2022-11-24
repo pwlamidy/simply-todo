@@ -124,7 +124,7 @@ function EditToDoModal() {
   }
 
   const handleDeleteConfirm = async () => {
-    if (id) {
+    if (id && id !== 'undefined') {
       await deleteServerTodo(id)
       deleteTodo(id)
     }
@@ -157,18 +157,20 @@ function EditToDoModal() {
               autoFocus
               color="inherit"
               onClick={async () => {
+                let defaultTodo = currTodo
+
+                // Force non null title
+                if (!currTodo.title) {
+                  defaultTodo = Object.assign({}, currTodo, {
+                    title: 'New Todo',
+                  })
+                }
+
                 if (!currTodo?.id) {
                   // New todo
-                  if (!currTodo.title) {
-                    // Force title
-                    await addServerTodo({ ...currTodo, title: 'New Todo' })
-                  } else {
-                    await addServerTodo(currTodo!)
-                  }
-
+                  await addServerTodo(defaultTodo)
                 } else {
-                  await updateServerTodo(currTodo!)
-                  updateTodo(currTodo!)
+                  await updateServerTodo(defaultTodo)
                 }
                 navigate(-1)
               }}
@@ -184,6 +186,7 @@ function EditToDoModal() {
               fullWidth
               value={currTodo?.title || ''}
               onChange={(e) => handleTitleChange(e.target.value)}
+              placeholder="New Todo"
             />
           </ListItem>
           <ListItem>
