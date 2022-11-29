@@ -4,16 +4,16 @@ import { Todo } from '../../types'
 export const fetchTodos = async (start?: Dayjs, end?: Dayjs) => {
   const queryParams = [
     {
-      createdAt_gte: start ? start.toISOString() : '',
+      startDate: start ? start.toISOString() : '',
     },
     {
-      createdAt_lte: end ? end.toISOString() : '',
+      endDate: end ? end.toISOString() : '',
     },
     {
-      _sort: 'id',
+      sort: 'id',
     },
     {
-      _order: 'desc',
+      order: 'desc',
     },
   ]
     .filter((p) => Object.values(p)[0])
@@ -21,32 +21,26 @@ export const fetchTodos = async (start?: Dayjs, end?: Dayjs) => {
     .join('&')
 
   const res = await fetch(
-    'http://192.168.1.133:5000/todos' +
-      (queryParams.length > 0 ? `?${queryParams}` : '')
+    `${
+      start || end
+        ? process.env.REACT_APP_TODO_FIND_BY_DATE_API_ENDPOINT
+        : process.env.REACT_APP_TODO_API_ENDPOINT
+    }` + (queryParams.length > 0 ? `?${queryParams}` : '')
   )
   const data = await res.json()
 
-  return data
-}
-
-const fetchTodosByIds = async (ids: string[]) => {
-  const res = await fetch(
-    `http://192.168.1.133:5000/todos?id=${ids.join('&id=')}`
-  )
-  const data = await res.json()
-
-  return data
+  return data['data']
 }
 
 export const fetchTodo = async (id: string) => {
-  const res = await fetch(`http://192.168.1.133:5000/todos/${id}`)
+  const res = await fetch(`${process.env.REACT_APP_TODO_API_ENDPOINT}/${id}`)
   const data = await res.json()
 
-  return data
+  return data["data"]
 }
 
 export const addServerTodo = async (todo: Todo) => {
-  const res = await fetch('http://192.168.1.133:5000/todos', {
+  const res = await fetch(`${process.env.REACT_APP_TODO_API_ENDPOINT}`, {
     method: 'POST',
     headers: {
       'Content-type': 'application/json',
@@ -56,31 +50,44 @@ export const addServerTodo = async (todo: Todo) => {
 
   const data = await res.json()
 
-  return data
+  return data["data"]
 }
 
 export const updateServerTodo = async (todo: Todo) => {
-  const res = await fetch(`http://192.168.1.133:5000/todos/${todo.id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-type': 'application/json',
-    },
-    body: JSON.stringify(todo),
-  })
+  const res = await fetch(
+    `${process.env.REACT_APP_TODO_API_ENDPOINT}/${todo.id}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify(todo),
+    }
+  )
 
   const data = await res.json()
 
-  return data
+  return data["data"]
 }
 
 export const deleteServerTodos = async (ids: Array<string>) => {
-  await fetch(`http://192.168.1.133:5000/todos?id=${ids.join('&id=')}`, {
+  await fetch(`${process.env.REACT_APP_BATCH_TODO_API_ENDPOINT}`, {
     method: 'DELETE',
+    headers: {
+      'Content-type': 'application/json',
+    },
+    body: JSON.stringify(
+      ids.map((id) => {
+        return {
+          id,
+        }
+      })
+    ),
   })
 }
 
 export const deleteServerTodo = async (id: string) => {
-  await fetch(`http://192.168.1.133:5000/todos/${id}`, {
+  await fetch(`${process.env.REACT_APP_TODO_API_ENDPOINT}/${id}`, {
     method: 'DELETE',
   })
 }
@@ -89,7 +96,7 @@ export const toggleServerTodo = async (id: string) => {
   const todoToToggle = await fetchTodo(id)
   const updTodo = { ...todoToToggle, completed: !todoToToggle.completed }
 
-  const res = await fetch(`http://192.168.1.133:5000/todos/${id}`, {
+  const res = await fetch(`${process.env.REACT_APP_TODO_API_ENDPOINT}/${id}`, {
     method: 'PUT',
     headers: {
       'Content-type': 'application/json',
@@ -105,24 +112,20 @@ export const toggleServerTodo = async (id: string) => {
 export const toggleServerTodos = async (ids: string[]) => {
   console.log('toggle multiple todo as completed', ids)
 
-  const todosToToggle = (await fetchTodosByIds(ids)) as Todo[]
   const updTodos = [] as Todo[]
-  todosToToggle.forEach((t) => {
-    updTodos.push({ ...t, completed: true })
+  ids.forEach((id) => {
+    updTodos.push({ id, completed: true } as Todo)
   })
 
-  const res = await fetch(
-    `http://192.168.1.133:5000/todos?id=${ids.join('&id=')}`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify(todosToToggle),
-    }
-  )
+  const res = await fetch(`${process.env.REACT_APP_BATCH_TODO_API_ENDPOINT}`, {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json',
+    },
+    body: JSON.stringify(updTodos),
+  })
 
   const data = await res.json()
 
-  return data
+  return data["data"]
 }
