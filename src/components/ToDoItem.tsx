@@ -5,31 +5,39 @@ import {
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import { IconButton, Input, ListItem, ListItemIcon } from '@mui/material'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link as RouterLink, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useStore } from '../store'
-import { toggleServerTodo } from '../utils/api'
+import { addServerTodo, toggleServerTodo, updateServerTodo } from '../utils/api'
 
 type Props = {
-  id: string
-  title: string
+  todo: Todo
   shouldFocus?: boolean
-  onTitleChangeHandler: Function
 }
 
-function ToDoItem({ id, title, shouldFocus, onTitleChangeHandler }: Props) {
-  const { todos, toggleComplete, toggleSelected, selected } = useStore()
-  const [currTodo, setCurrTodo] = useState<Todo>()
+function ToDoItem({ todo, shouldFocus }: Props) {
+  const { updateTodo, toggleComplete, toggleSelected, selected } = useStore()
   const [searchParams] = useSearchParams()
-
-  useEffect(() => {
-    setCurrTodo(todos.find((t) => t.id === id))
-  }, [todos, id])
 
   const isSelectMode = useMemo(() => {
     return new URLSearchParams(searchParams).get('mode') === 'select'
   }, [searchParams])
+
+  const onTitleChangeHandler = async (titleText: string) => {
+    // Create server todo if new todo
+    if (!todo.id) {
+      const todo = await addServerTodo({ title: titleText } as Todo)
+      updateTodo(todo)
+    } else {
+      const updTodo = {
+        ...todo,
+        title: titleText,
+      } as Todo
+      await updateServerTodo(updTodo)
+      updateTodo(updTodo)
+    }
+  }
 
   return (
     <ListItem
@@ -38,7 +46,7 @@ function ToDoItem({ id, title, shouldFocus, onTitleChangeHandler }: Props) {
           <IconButton
             edge="end"
             aria-label="more"
-            to={`/edit/${id}`}
+            to={`/edit/${todo.id}`}
             component={RouterLink}
           >
             <MoreIcon />
@@ -49,11 +57,11 @@ function ToDoItem({ id, title, shouldFocus, onTitleChangeHandler }: Props) {
       {!isSelectMode && (
         <ListItemIcon
           onClick={async () => {
-            await toggleServerTodo(id)
-            toggleComplete(id)
+            await toggleServerTodo(todo.id)
+            toggleComplete(todo.id)
           }}
         >
-          {currTodo?.completed ? (
+          {todo?.completed ? (
             <RadioButtonCheckedIcon />
           ) : (
             <RadioButtonUncheckedIcon />
@@ -61,8 +69,8 @@ function ToDoItem({ id, title, shouldFocus, onTitleChangeHandler }: Props) {
         </ListItemIcon>
       )}
       {isSelectMode && (
-        <ListItemIcon onClick={() => toggleSelected(id)}>
-          {currTodo?.id && selected.indexOf(currTodo?.id) > -1 ? (
+        <ListItemIcon onClick={() => toggleSelected(todo.id)}>
+          {todo.id && selected.indexOf(todo?.id) > -1 ? (
             <CheckCircleIcon />
           ) : (
             <RadioButtonUncheckedIcon />
@@ -73,7 +81,7 @@ function ToDoItem({ id, title, shouldFocus, onTitleChangeHandler }: Props) {
         inputRef={(input) => input && shouldFocus && input.focus()}
         placeholder="(Please input title)"
         disabled={isSelectMode}
-        value={title}
+        value={todo.title}
         onChange={(e) => onTitleChangeHandler(e.target.value)}
         fullWidth={true}
       />

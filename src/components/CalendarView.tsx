@@ -3,15 +3,13 @@ import { Box, List } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Todo } from '../../types'
 import { useStore } from '../store'
-import { fetchTodos, updateServerTodo } from '../utils/api'
+import { fetchTodos } from '../utils/api'
 import BasicStaticDatePicker from './BasicStaticDatePicker'
 import ToDoItem from './ToDoItem'
 
 function CalendarView() {
-  const { todos, initTodos, updateTodo, monthlyTodos, initMonthlyTodos } =
-    useStore()
+  const { todos, initTodos, monthlyTodos, initMonthlyTodos } = useStore()
   const [selectedDate, setSelectedDate] = useState(dayjs())
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -36,19 +34,11 @@ function CalendarView() {
     [selectedDate]
   )
 
-  const onTitleChangeHandler = async (id: string, titleText: string) => {
-    const todoInEdit = todos.find((t) => t.id === id)
-    const updTodo = {
-      ...todoInEdit,
-      title: titleText,
-    } as Todo
-    await updateServerTodo(updTodo)
-    updateTodo(updTodo)
-  }
-
   useEffect(() => {
     const getTodos = async () => {
-      const currDate = dayjs(new URLSearchParams(searchParams).get('date') || Date.now())
+      const currDate = dayjs(
+        new URLSearchParams(searchParams).get('date') || Date.now()
+      )
       setSelectedDate(currDate)
 
       const monthlyTodos = await fetchTodos(
@@ -110,16 +100,10 @@ function CalendarView() {
             overflow: 'auto',
           }}
         >
-          {todos.map(({ id, title }, index) => (
-            <ToDoItem
-              key={index}
-              id={id}
-              title={title}
-              onTitleChangeHandler={(titleText: string) =>
-                onTitleChangeHandler(id, titleText)
-              }
-            />
-          ))}
+          {todos.map(({ id }, index) => {
+            const currTodo = todos.find((t) => t.id === id)
+            return currTodo && <ToDoItem key={index} todo={currTodo} />
+          })}
         </List>
       )}
       {todos.length === 0 && (

@@ -4,13 +4,12 @@ import { useEffect, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useStore } from '../store'
-import { addServerTodo, fetchTodos, updateServerTodo } from '../utils/api'
+import { fetchTodos } from '../utils/api'
 import EditToDoModal from './EditToDoModal'
 import ToDoItem from './ToDoItem'
 
 function ToDoItemList() {
-  const { todos, initTodos, addTodo, updateTodo, clearSelected, selected } =
-    useStore()
+  const { todos, initTodos, addTodo, clearSelected, selected } = useStore()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
 
@@ -36,22 +35,6 @@ function ToDoItemList() {
     }
   }
 
-  const onTitleChangeHandler = async (id: string, titleText: string) => {
-    // Create server todo if new todo
-    if (!id) {
-      const todo = await addServerTodo({ title: titleText } as Todo)
-      updateTodo(todo)
-    } else {
-      const todoInEdit = todos.find((t) => t.id === id)
-      const updTodo = {
-        ...todoInEdit,
-        title: titleText,
-      } as Todo
-      await updateServerTodo(updTodo)
-      updateTodo(updTodo)
-    }
-  }
-
   const isSelectMode = useMemo(() => {
     return new URLSearchParams(searchParams).get('mode') === 'select'
   }, [searchParams])
@@ -65,17 +48,18 @@ function ToDoItemList() {
   return (
     <>
       <List sx={{ marginBottom: '60px' }}>
-        {todos.map(({ id, title }, index) => (
-          <ToDoItem
-            key={index}
-            id={id}
-            title={title}
-            shouldFocus={id === todos[0].id && title === ''}
-            onTitleChangeHandler={(titleText: string) =>
-              onTitleChangeHandler(id, titleText)
-            }
-          />
-        ))}
+        {todos.map(({ id, title }, index) => {
+          const currTodo = todos.find((t) => t.id === id)
+          return (
+            currTodo && (
+              <ToDoItem
+                key={index}
+                todo={currTodo}
+                shouldFocus={id === todos[0].id && title === ''}
+              />
+            )
+          )
+        })}
       </List>
       <EditToDoModal />
       <Grid
