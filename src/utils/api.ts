@@ -1,31 +1,30 @@
-import { Dayjs } from 'dayjs'
-import { Todo } from '../../types'
+import { FetchTodoParam, Todo } from '../../types'
 
-export const fetchTodos = async (start?: Dayjs, end?: Dayjs) => {
+export const fetchTodos = async (
+  {
+    start,
+    end,
+    sort = 'id',
+    order = 'desc',
+  }: FetchTodoParam = {} as FetchTodoParam
+) => {
   const queryParams = [
     {
-      startDate: start ? start.toISOString() : '',
+      date_gte: start ? start.toISOString() : '',
     },
     {
-      endDate: end ? end.toISOString() : '',
+      date_lte: end ? end.toISOString() : '',
     },
-    {
-      sort: 'id',
-    },
-    {
-      order: 'desc',
-    },
+    { sort },
+    { order },
   ]
     .filter((p) => Object.values(p)[0])
     .map((v) => `${Object.keys(v)[0]}=${Object.values(v)[0]}`)
     .join('&')
 
   const res = await fetch(
-    `${
-      start || end
-        ? process.env.REACT_APP_TODO_FIND_BY_DATE_API_ENDPOINT
-        : process.env.REACT_APP_TODO_API_ENDPOINT
-    }` + (queryParams.length > 0 ? `?${queryParams}` : '')
+    `${process.env.REACT_APP_TODO_API_ENDPOINT}` +
+      (queryParams.length > 0 ? `?${queryParams}` : '')
   )
   const data = await res.json()
 
@@ -36,7 +35,7 @@ export const fetchTodo = async (id: string) => {
   const res = await fetch(`${process.env.REACT_APP_TODO_API_ENDPOINT}/${id}`)
   const data = await res.json()
 
-  return data["data"]
+  return data['data']
 }
 
 export const addServerTodo = async (todo: Todo) => {
@@ -50,7 +49,7 @@ export const addServerTodo = async (todo: Todo) => {
 
   const data = await res.json()
 
-  return data["data"]
+  return data['data']
 }
 
 export const updateServerTodo = async (todo: Todo) => {
@@ -67,7 +66,7 @@ export const updateServerTodo = async (todo: Todo) => {
 
   const data = await res.json()
 
-  return data["data"]
+  return data['data']
 }
 
 export const deleteServerTodos = async (ids: Array<string>) => {
@@ -127,5 +126,5 @@ export const toggleServerTodos = async (ids: string[]) => {
 
   const data = await res.json()
 
-  return data["data"]
+  return data['data']
 }

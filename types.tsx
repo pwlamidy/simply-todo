@@ -1,3 +1,5 @@
+import { Dayjs } from "dayjs"
+
 declare global {}
 
 export interface Todo {
@@ -12,4 +14,11 @@ export interface Todo {
   completed?: boolean,
   createdAt: Date,
   lastUpdatedAt: Date
+}
+
+export interface FetchTodoParam {
+  start?: Dayjs
+  end?: Dayjs
+  sort: string
+  order: string
 }

@@ -3,6 +3,7 @@ import { Box, List } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { FetchTodoParam } from '../../types'
 import { useStore } from '../store'
 import { fetchTodos } from '../utils/api'
 import BasicStaticDatePicker from './BasicStaticDatePicker'
@@ -18,13 +19,19 @@ function CalendarView() {
 
     setSelectedDate(d)
 
-    const todos = await fetchTodos(d.startOf('day'), d.endOf('day'))
+    const todos = await fetchTodos({
+      start: d.startOf('day'),
+      end: d.endOf('day'),
+    } as FetchTodoParam)
 
     initTodos(todos)
   }
 
   const handleMonthChange = async (m: Dayjs) => {
-    const monthlyTodos = await fetchTodos(m.startOf('month'), m.endOf('month'))
+    const monthlyTodos = await fetchTodos({
+      start: m.startOf('month'),
+      end: m.endOf('month'),
+    } as FetchTodoParam)
 
     initMonthlyTodos(monthlyTodos)
   }
@@ -41,17 +48,17 @@ function CalendarView() {
       )
       setSelectedDate(currDate)
 
-      const monthlyTodos = await fetchTodos(
-        currDate.startOf('month'),
-        currDate.endOf('month')
-      )
+      const monthlyTodos = await fetchTodos({
+        start: currDate.startOf('month'),
+        end: currDate.endOf('month'),
+      } as FetchTodoParam)
 
       initMonthlyTodos(monthlyTodos)
 
-      const todos = await fetchTodos(
-        currDate.startOf('day'),
-        currDate.endOf('day')
-      )
+      const todos = await fetchTodos({
+        start: currDate.startOf('day'),
+        end: currDate.endOf('day'),
+      } as FetchTodoParam)
 
       initTodos(todos)
     }
