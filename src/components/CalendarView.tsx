@@ -8,32 +8,38 @@ import { useStore } from '../store'
 import { fetchTodos } from '../utils/api'
 import BasicStaticDatePicker from './BasicStaticDatePicker'
 import ToDoItem from './ToDoItem'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { PAGE_SIZE } from '../utils/constants'
 
 function CalendarView() {
   const { todos, initTodos, monthlyTodos, initMonthlyTodos } = useStore()
   const [selectedDate, setSelectedDate] = useState(dayjs())
   const [searchParams, setSearchParams] = useSearchParams()
+  const [currPage, setCurrPage] = useState(1)
+  const [todosTotal, setTodosTotal] = useState(0)
 
   const handleDateChange = async (d: Dayjs) => {
     setSearchParams(() => ({ date: d.format('YYYY-MM-DD') }))
 
     setSelectedDate(d)
 
-    const todos = await fetchTodos({
+    const todosResult = await fetchTodos({
       start: d.startOf('day'),
       end: d.endOf('day'),
     } as FetchTodoParam)
 
-    initTodos(todos)
+    setTodosTotal(todosResult['page']['total'])
+
+    initTodos(todosResult['data'])
   }
 
   const handleMonthChange = async (m: Dayjs) => {
-    const monthlyTodos = await fetchTodos({
+    const monthlyTodosResult = await fetchTodos({
       start: m.startOf('month'),
       end: m.endOf('month'),
     } as FetchTodoParam)
 
-    initMonthlyTodos(monthlyTodos)
+    initMonthlyTodos(monthlyTodosResult['data'])
   }
 
   const isToday = useMemo(
@@ -48,26 +54,30 @@ function CalendarView() {
       )
       setSelectedDate(currDate)
 
-      const monthlyTodos = await fetchTodos({
+      const monthlyTodosResult = await fetchTodos({
         start: currDate.startOf('month'),
         end: currDate.endOf('month'),
       } as FetchTodoParam)
 
-      initMonthlyTodos(monthlyTodos)
+      initMonthlyTodos(monthlyTodosResult['data'])
 
-      const todos = await fetchTodos({
+      const todosResult = await fetchTodos({
         start: currDate.startOf('day'),
         end: currDate.endOf('day'),
       } as FetchTodoParam)
 
-      initTodos(todos)
+      setTodosTotal(todosResult['page']['total'])
+
+      initTodos(todosResult['data'])
     }
 
     getTodos()
   }, [searchParams, initMonthlyTodos, initTodos])
 
   return (
-    <Box>
+    <Box sx={{
+      paddingBottom: '60px',
+    }}>
       <BasicStaticDatePicker
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
@@ -98,20 +108,32 @@ function CalendarView() {
         </div>
       </Box>
       {todos.length > 0 && (
-        <List
-          sx={{
-            paddingBottom: '60px',
-            position: 'absolute',
-            width: '100%',
-            height: '45%',
-            overflow: 'auto',
-          }}
-        >
-          {todos.map(({ id }, index) => {
-            const currTodo = todos.find((t) => t.id === id)
-            return currTodo && <ToDoItem key={index} todo={currTodo} />
-          })}
-        </List>
+        <Box>
+          <List>
+            <InfiniteScroll
+              dataLength={todos ? todos.length : 0}
+              next={async () => {
+                const nextTodosResult = await fetchTodos({
+                  page: currPage + 1,
+                } as FetchTodoParam)
+                initTodos([...todos, ...nextTodosResult['data']])
+                setCurrPage((prev) => prev + 1)
+              }}
+              hasMore={currPage * PAGE_SIZE < todosTotal}
+              loader={<h4>Loading...</h4>}
+            >
+              {todos.map((currTodo, index) => (
+                <ToDoItem
+                  key={currTodo.id ?? new Date().toString()}
+                  todo={currTodo}
+                  shouldFocus={
+                    currTodo.id === todos[0].id && currTodo.title === ''
+                  }
+                />
+              ))}
+            </InfiniteScroll>
+          </List>
+        </Box>
       )}
       {todos.length === 0 && (
         <Box

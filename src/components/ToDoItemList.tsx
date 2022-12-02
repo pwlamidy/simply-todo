@@ -1,10 +1,12 @@
 import { AddBox as AddBoxIcon, Rule as RuleIcon } from '@mui/icons-material'
 import { Button, Grid, List } from '@mui/material'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Todo } from '../../types'
+import { FetchTodoParam, Todo } from '../../types'
 import { useStore } from '../store'
 import { fetchTodos } from '../utils/api'
+import { PAGE_SIZE } from '../utils/constants'
 import EditToDoModal from './EditToDoModal'
 import ToDoItem from './ToDoItem'
 
@@ -12,12 +14,16 @@ function ToDoItemList() {
   const { todos, initTodos, addTodo, clearSelected, selected } = useStore()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
+  const [currPage, setCurrPage] = useState(1)
+  const [todosTotal, setTodosTotal] = useState(0)
 
   useEffect(() => {
     const getTodos = async () => {
-      const todos = await fetchTodos()
+      const todosResult = await fetchTodos()
 
-      initTodos(todos)
+      setTodosTotal(todosResult['page']['total'])
+
+      initTodos(todosResult['data'])
     }
 
     getTodos()
@@ -48,13 +54,26 @@ function ToDoItemList() {
   return (
     <>
       <List sx={{ marginBottom: '60px' }}>
-        {todos.map((currTodo, index) => (
-          <ToDoItem
-            key={currTodo.id ?? new Date().toString()}
-            todo={currTodo}
-            shouldFocus={currTodo.id === todos[0].id && currTodo.title === ''}
-          />
-        ))}
+        <InfiniteScroll
+          dataLength={todos ? todos.length : 0}
+          next={async () => {
+            const nextTodosResult = await fetchTodos({
+              page: currPage + 1,
+            } as FetchTodoParam)
+            initTodos([...todos, ...nextTodosResult['data']])
+            setCurrPage((prev) => prev + 1)
+          }}
+          hasMore={currPage * PAGE_SIZE < todosTotal}
+          loader={<h4>Loading...</h4>}
+        >
+          {todos.map((currTodo, index) => (
+            <ToDoItem
+              key={currTodo.id ?? new Date().toString()}
+              todo={currTodo}
+              shouldFocus={currTodo.id === todos[0].id && currTodo.title === ''}
+            />
+          ))}
+        </InfiniteScroll>
       </List>
       <EditToDoModal />
       <Grid

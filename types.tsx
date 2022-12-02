@@ -19,6 +19,8 @@ export interface Todo {
 export interface FetchTodoParam {
   start?: Dayjs
   end?: Dayjs
+  page: number
+  size: number
   sort: string
   order: string
 }

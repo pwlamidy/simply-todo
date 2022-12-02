@@ -24,7 +24,7 @@ export default function BasicStaticDatePicker({
 }: Props) {
   const daysWithTodos = React.useMemo(() => {
     return monthlyTodos.reduce((days: number[], todo: Todo) => {
-      const todoDay = dayjs(todo.createdAt).date()
+      const todoDay = dayjs(todo.date).date()
       if (days.indexOf(todoDay) === -1) {
         days.push(todoDay)
       }

@@ -1,9 +1,12 @@
 import { FetchTodoParam, Todo } from '../../types'
+import { PAGE_SIZE } from './constants'
 
 export const fetchTodos = async (
   {
     start,
     end,
+    page = 1,
+    size = PAGE_SIZE,
     sort = 'id',
     order = 'desc',
   }: FetchTodoParam = {} as FetchTodoParam
@@ -15,6 +18,8 @@ export const fetchTodos = async (
     {
       date_lte: end ? end.toISOString() : '',
     },
+    { page },
+    { size },
     { sort },
     { order },
   ]
@@ -28,7 +33,7 @@ export const fetchTodos = async (
   )
   const data = await res.json()
 
-  return data['data']
+  return data
 }
 
 export const fetchTodo = async (id: string) => {
