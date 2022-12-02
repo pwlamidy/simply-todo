@@ -48,18 +48,13 @@ function ToDoItemList() {
   return (
     <>
       <List sx={{ marginBottom: '60px' }}>
-        {todos.map(({ id, title }, index) => {
-          const currTodo = todos.find((t) => t.id === id)
-          return (
-            currTodo && (
-              <ToDoItem
-                key={index}
-                todo={currTodo}
-                shouldFocus={id === todos[0].id && title === ''}
-              />
-            )
-          )
-        })}
+        {todos.map((currTodo, index) => (
+          <ToDoItem
+            key={currTodo.id ?? new Date().toString()}
+            todo={currTodo}
+            shouldFocus={currTodo.id === todos[0].id && currTodo.title === ''}
+          />
+        ))}
       </List>
       <EditToDoModal />
       <Grid
