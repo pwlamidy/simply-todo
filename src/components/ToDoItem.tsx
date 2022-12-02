@@ -111,6 +111,11 @@ function ToDoItem({ todo, shouldFocus }: Props) {
         value={input}
         onChange={(e) => onTitleChangeHandler(e.target.value)}
         fullWidth={true}
+        onBlur={() => {
+          if (!todo.title && todo.id) {
+            setInput('New Todo')
+          }
+        }}
       />
     </ListItem>
   )
