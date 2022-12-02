@@ -18,6 +18,10 @@ function ToDoItemList() {
   const [todosTotal, setTodosTotal] = useState(0)
 
   useEffect(() => {
+    scrollToTop()
+  }, [])
+
+  useEffect(() => {
     const getTodos = async () => {
       const todosResult = await fetchTodos()
 

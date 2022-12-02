@@ -18,6 +18,14 @@ function CalendarView() {
   const [currPage, setCurrPage] = useState(1)
   const [todosTotal, setTodosTotal] = useState(0)
 
+  useEffect(() => {
+    scrollToTop()
+  }, [])
+
+  const scrollToTop = () => {
+    window.scrollTo(0, 0)
+  }
+
   const handleDateChange = async (d: Dayjs) => {
     setSearchParams(() => ({ date: d.format('YYYY-MM-DD') }))
 
