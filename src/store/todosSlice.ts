@@ -1,5 +1,7 @@
+import { Dayjs } from 'dayjs'
 import { StateCreator } from 'zustand'
-import { Todo } from '../../types'
+import { Todo, TodosCount } from '../../types'
+import { fetchTodosCount } from '../utils/api'
 
 export interface TodosSlice {
   todos: Todo[]
@@ -8,8 +10,8 @@ export interface TodosSlice {
   updateTodo: (todo: Todo) => void
   deleteTodo: (id: string) => void
   toggleComplete: (id: string) => void
-  monthlyTodos: Todo[]
-  initMonthlyTodos: (todos: Todo[]) => void
+  todosCount: TodosCount[]
+  initTodosCount: (start: Dayjs, end: Dayjs) => void
 }
 
 export const createTodosSlice: StateCreator<
@@ -37,12 +39,12 @@ export const createTodosSlice: StateCreator<
       'addTodo'
     )
   },
-  updateTodo: (todo) => 
+  updateTodo: (todo) =>
     set(
       (state) => {
-        const ids = state.todos.map(t => t.id)
-    
-        return ({
+        const ids = state.todos.map((t) => t.id)
+
+        return {
           todos: state.todos.map((t) => {
             if (t.id === todo.id) {
               return todo
@@ -53,7 +55,7 @@ export const createTodosSlice: StateCreator<
               return t
             }
           }),
-        })
+        }
       },
       false,
       'updateTodo'
@@ -81,14 +83,9 @@ export const createTodosSlice: StateCreator<
       false,
       'toggleComplete'
     ),
-  monthlyTodos: [],
-  initMonthlyTodos: async (todos) => {
-    set(
-      (state) => ({
-        monthlyTodos: todos,
-      }),
-      false,
-      'initMonthlyTodos'
-    )
+  todosCount: [],
+  initTodosCount: async (start, end) => {
+    const todosCount = await fetchTodosCount(start, end)
+    set((state) => ({ todosCount: todosCount }), false, 'initTodosCount')
   },
 })

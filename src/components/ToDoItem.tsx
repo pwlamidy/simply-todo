@@ -105,6 +105,10 @@ function ToDoItem({ todo, shouldFocus }: Props) {
         </ListItemIcon>
       )}
       <Input
+        sx={{
+          color: todo.completed ? '#b5b5b5' : 'inherit',
+          textDecoration: todo.completed ? 'line-through' : 'inherit'
+        }}
         inputRef={(input) => input && shouldFocus && input.focus()}
         placeholder="(Please input title)"
         disabled={isSelectMode}

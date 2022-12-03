@@ -5,14 +5,14 @@ import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay'
 import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker'
 import dayjs, { Dayjs } from 'dayjs'
 import * as React from 'react'
-import { Todo } from '../../types'
+import { TodosCount } from '../../types'
 
 type Props = {
   selectedDate: Dayjs | null
   setSelectedDate: Function
   handleDateChange: Function
   handleMonthChange: Function
-  monthlyTodos: Todo[]
+  todosCount: TodosCount[]
 }
 
 export default function BasicStaticDatePicker({
@@ -20,17 +20,9 @@ export default function BasicStaticDatePicker({
   setSelectedDate,
   handleDateChange,
   handleMonthChange,
-  monthlyTodos,
+  todosCount,
 }: Props) {
-  const daysWithTodos = React.useMemo(() => {
-    return monthlyTodos.reduce((days: number[], todo: Todo) => {
-      const todoDay = dayjs(todo.date).date()
-      if (days.indexOf(todoDay) === -1) {
-        days.push(todoDay)
-      }
-      return days
-    }, [])
-  }, [monthlyTodos])
+  const daysWithTodos = React.useMemo(() => todosCount.map(t => dayjs(t.date).date()), [todosCount])
 
   const renderPickersDay = (
     day: Dayjs,

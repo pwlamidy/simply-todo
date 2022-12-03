@@ -12,7 +12,12 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { PAGE_SIZE } from '../utils/constants'
 
 function CalendarView() {
-  const { todos, initTodos, monthlyTodos, initMonthlyTodos } = useStore()
+  const {
+    todos,
+    initTodos,
+    todosCount,
+    initTodosCount,
+  } = useStore()
   const [selectedDate, setSelectedDate] = useState(dayjs())
   const [searchParams, setSearchParams] = useSearchParams()
   const [currPage, setCurrPage] = useState(1)
@@ -27,6 +32,8 @@ function CalendarView() {
   }
 
   const handleDateChange = async (d: Dayjs) => {
+    setCurrPage(1)
+
     setSearchParams(() => ({ date: d.format('YYYY-MM-DD') }))
 
     setSelectedDate(d)
@@ -42,12 +49,7 @@ function CalendarView() {
   }
 
   const handleMonthChange = async (m: Dayjs) => {
-    const monthlyTodosResult = await fetchTodos({
-      start: m.startOf('month'),
-      end: m.endOf('month'),
-    } as FetchTodoParam)
-
-    initMonthlyTodos(monthlyTodosResult['data'])
+    initTodosCount(m.startOf('month'), m.endOf('month'))
   }
 
   const isToday = useMemo(
@@ -62,12 +64,7 @@ function CalendarView() {
       )
       setSelectedDate(currDate)
 
-      const monthlyTodosResult = await fetchTodos({
-        start: currDate.startOf('month'),
-        end: currDate.endOf('month'),
-      } as FetchTodoParam)
-
-      initMonthlyTodos(monthlyTodosResult['data'])
+      initTodosCount(currDate.startOf('month'), currDate.endOf('month'))
 
       const todosResult = await fetchTodos({
         start: currDate.startOf('day'),
@@ -80,18 +77,20 @@ function CalendarView() {
     }
 
     getTodos()
-  }, [searchParams, initMonthlyTodos, initTodos])
+  }, [searchParams, initTodosCount, initTodos])
 
   return (
-    <Box sx={{
-      paddingBottom: '60px',
-    }}>
+    <Box
+      sx={{
+        paddingBottom: '60px',
+      }}
+    >
       <BasicStaticDatePicker
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
         handleDateChange={handleDateChange}
         handleMonthChange={handleMonthChange}
-        monthlyTodos={monthlyTodos}
+        todosCount={todosCount}
       />
       <Box
         sx={{

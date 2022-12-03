@@ -24,3 +24,8 @@ export interface FetchTodoParam {
   sort: string
   order: string
 }
+
+export interface TodosCount {
+  date: Date,
+  total: number
+}

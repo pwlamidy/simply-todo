@@ -1,3 +1,4 @@
+import { Dayjs } from 'dayjs'
 import { FetchTodoParam, Todo } from '../../types'
 import { PAGE_SIZE } from './constants'
 
@@ -114,8 +115,6 @@ export const toggleServerTodo = async (id: string) => {
 }
 
 export const toggleServerTodos = async (ids: string[]) => {
-  console.log('toggle multiple todo as completed', ids)
-
   const updTodos = [] as Todo[]
   ids.forEach((id) => {
     updTodos.push({ id, completed: true } as Todo)
@@ -128,6 +127,26 @@ export const toggleServerTodos = async (ids: string[]) => {
     },
     body: JSON.stringify(updTodos),
   })
+
+  const data = await res.json()
+
+  return data['data']
+}
+
+export const fetchTodosCount = async (start: Dayjs, end: Dayjs) => {
+  const queryParams = [
+    {
+      date_gte: start ? start.toISOString() : '',
+    },
+    {
+      date_lte: end ? end.toISOString() : '',
+    },
+  ]
+    .filter((p) => Object.values(p)[0])
+    .map((v) => `${Object.keys(v)[0]}=${Object.values(v)[0]}`)
+    .join('&')
+
+  const res = await fetch(`${process.env.REACT_APP_TODO_COUNT_API_ENDPOINT}?${queryParams}`)
 
   const data = await res.json()
 
