@@ -32,6 +32,8 @@ function CalendarView() {
   }
 
   const handleDateChange = async (d: Dayjs) => {
+    // Reset settings
+    initTodos([])
     setCurrPage(1)
 
     setSearchParams(() => ({ date: d.format('YYYY-MM-DD') }))
@@ -58,6 +60,8 @@ function CalendarView() {
   )
 
   useEffect(() => {
+    initTodos([])
+
     const getTodos = async () => {
       const currDate = dayjs(
         new URLSearchParams(searchParams).get('date') || Date.now()

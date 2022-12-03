@@ -22,6 +22,8 @@ function ToDoItemList() {
   }, [])
 
   useEffect(() => {
+    initTodos([])
+
     const getTodos = async () => {
       const todosResult = await fetchTodos()
 
