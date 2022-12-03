@@ -5,7 +5,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { FetchTodoParam, Todo } from '../../types'
 import { useStore } from '../store'
-import { fetchTodos } from '../utils/api'
+import { addServerTodo, fetchTodos } from '../utils/api'
 import { PAGE_SIZE } from '../utils/constants'
 import EditToDoModal from './EditToDoModal'
 import ToDoItem from './ToDoItem'
@@ -16,6 +16,7 @@ function ToDoItemList() {
   const navigate = useNavigate()
   const [currPage, setCurrPage] = useState(1)
   const [todosTotal, setTodosTotal] = useState(0)
+  const [focusId, setFocusId] = useState(null)
 
   useEffect(() => {
     scrollToTop()
@@ -35,6 +36,10 @@ function ToDoItemList() {
     getTodos()
   }, [initTodos])
 
+  const resetFocus = () => {
+    setFocusId(null)
+  }
+
   const scrollToTop = () => {
     window.scrollTo(0, 0)
   }
@@ -42,7 +47,11 @@ function ToDoItemList() {
   const addToDoHandler = async () => {
     const hasEmptyTodo = todos.findIndex((t) => !t.title) !== -1
     if (!hasEmptyTodo) {
-      addTodo({ title: '' } as Todo)
+      const newTodo = await addServerTodo({ title: '' } as Todo)
+      addTodo(newTodo)
+      
+      setFocusId(newTodo.id)
+
       scrollToTop()
     }
   }
@@ -76,7 +85,8 @@ function ToDoItemList() {
             <ToDoItem
               key={currTodo.id ?? new Date().toString()}
               todo={currTodo}
-              shouldFocus={currTodo.id === todos[0].id && currTodo.title === ''}
+              shouldFocus={currTodo.id === focusId}
+              resetFocus={resetFocus}
             />
           ))}
         </InfiniteScroll>

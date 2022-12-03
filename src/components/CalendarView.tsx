@@ -139,9 +139,6 @@ function CalendarView() {
                 <ToDoItem
                   key={currTodo.id ?? new Date().toString()}
                   todo={currTodo}
-                  shouldFocus={
-                    currTodo.id === todos[0].id && currTodo.title === ''
-                  }
                 />
               ))}
             </InfiniteScroll>

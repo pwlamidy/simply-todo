@@ -1,6 +1,6 @@
 import {
   CheckCircle as CheckCircleIcon,
-  More as MoreIcon,
+  More as MoreIcon
 } from '@mui/icons-material'
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
@@ -10,14 +10,15 @@ import { Link as RouterLink, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useDebounce } from '../hooks/useDebounce'
 import { useStore } from '../store'
-import { addServerTodo, toggleServerTodo, updateServerTodo } from '../utils/api'
+import { toggleServerTodo, updateServerTodo } from '../utils/api'
 
 type Props = {
   todo: Todo
   shouldFocus?: boolean
+  resetFocus?: Function
 }
 
-function ToDoItem({ todo, shouldFocus }: Props) {
+function ToDoItem({ todo, shouldFocus, resetFocus }: Props) {
   const { updateTodo, toggleComplete, toggleSelected, selected } = useStore()
   const [searchParams] = useSearchParams()
   const [input, setInput] = useState<string>(todo.title)
@@ -49,16 +50,11 @@ function ToDoItem({ todo, shouldFocus }: Props) {
     } else {
       // async action with debounceInput
       const handleTitleChange = async (titleText?: string) => {
-        // Create server todo if new todo
-        if (!todo.id) {
-          addToQueue(addServerTodo({ title: titleText } as Todo))
-        } else {
-          const updTodo = {
-            ...todo,
-            title: titleText,
-          } as Todo
-          addToQueue(updateServerTodo(updTodo))
-        }
+        const updTodo = {
+          ...todo,
+          title: titleText,
+        } as Todo
+        addToQueue(updateServerTodo(updTodo))
       }
 
       handleTitleChange(debounceInput)
@@ -116,8 +112,11 @@ function ToDoItem({ todo, shouldFocus }: Props) {
         onChange={(e) => onTitleChangeHandler(e.target.value)}
         fullWidth={true}
         onBlur={() => {
-          if (!todo.title && todo.id) {
+          if (!todo.title) {
             setInput('New Todo')
+          }
+          if (resetFocus) {
+            resetFocus()
           }
         }}
       />
