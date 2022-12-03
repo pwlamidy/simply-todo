@@ -15,10 +15,10 @@ import { toggleServerTodo, updateServerTodo } from '../utils/api'
 type Props = {
   todo: Todo
   shouldFocus?: boolean
-  resetFocus?: Function
+  setFocusId?: Function
 }
 
-function ToDoItem({ todo, shouldFocus, resetFocus }: Props) {
+function ToDoItem({ todo, shouldFocus, setFocusId }: Props) {
   const { updateTodo, toggleComplete, toggleSelected, selected } = useStore()
   const [searchParams] = useSearchParams()
   const [input, setInput] = useState<string>(todo.title)
@@ -115,8 +115,8 @@ function ToDoItem({ todo, shouldFocus, resetFocus }: Props) {
           if (!todo.title) {
             setInput('New Todo')
           }
-          if (resetFocus) {
-            resetFocus()
+          if (setFocusId) {
+            setFocusId(null)
           }
         }}
       />

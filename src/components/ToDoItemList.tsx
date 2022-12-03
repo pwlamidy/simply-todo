@@ -36,10 +36,6 @@ function ToDoItemList() {
     getTodos()
   }, [initTodos])
 
-  const resetFocus = () => {
-    setFocusId(null)
-  }
-
   const scrollToTop = () => {
     window.scrollTo(0, 0)
   }
@@ -86,7 +82,7 @@ function ToDoItemList() {
               key={currTodo.id ?? new Date().toString()}
               todo={currTodo}
               shouldFocus={currTodo.id === focusId}
-              resetFocus={resetFocus}
+              setFocusId={setFocusId}
             />
           ))}
         </InfiniteScroll>
