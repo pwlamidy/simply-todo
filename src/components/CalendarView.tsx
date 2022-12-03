@@ -121,6 +121,8 @@ function CalendarView() {
               dataLength={todos ? todos.length : 0}
               next={async () => {
                 const nextTodosResult = await fetchTodos({
+                  start: selectedDate.startOf('day'),
+                  end: selectedDate.endOf('day'),
                   page: currPage + 1,
                 } as FetchTodoParam)
                 initTodos([...todos, ...nextTodosResult['data']])
