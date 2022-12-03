@@ -1,7 +1,5 @@
-import { Dayjs } from 'dayjs'
 import { StateCreator } from 'zustand'
 import { Todo, TodosCount } from '../../types'
-import { fetchTodosCount } from '../utils/api'
 
 export interface TodosSlice {
   todos: Todo[]
@@ -11,7 +9,7 @@ export interface TodosSlice {
   deleteTodo: (id: string) => void
   toggleComplete: (id: string) => void
   todosCount: TodosCount[]
-  initTodosCount: (start: Dayjs, end: Dayjs) => void
+  initTodosCount: (todosCount: TodosCount[]) => void
 }
 
 export const createTodosSlice: StateCreator<
@@ -84,8 +82,7 @@ export const createTodosSlice: StateCreator<
       'toggleComplete'
     ),
   todosCount: [],
-  initTodosCount: async (start, end) => {
-    const todosCount = await fetchTodosCount(start, end)
+  initTodosCount: (todosCount) => {
     set((state) => ({ todosCount: todosCount }), false, 'initTodosCount')
   },
 })

@@ -2,22 +2,17 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { Box, List } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
 import { useEffect, useMemo, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
 import { useSearchParams } from 'react-router-dom'
 import { FetchTodoParam } from '../../types'
 import { useStore } from '../store'
-import { fetchTodos } from '../utils/api'
+import { fetchTodos, fetchTodosCount } from '../utils/api'
+import { PAGE_SIZE } from '../utils/constants'
 import BasicStaticDatePicker from './BasicStaticDatePicker'
 import ToDoItem from './ToDoItem'
-import InfiniteScroll from 'react-infinite-scroll-component'
-import { PAGE_SIZE } from '../utils/constants'
 
 function CalendarView() {
-  const {
-    todos,
-    initTodos,
-    todosCount,
-    initTodosCount,
-  } = useStore()
+  const { todos, initTodos, todosCount, initTodosCount } = useStore()
   const [selectedDate, setSelectedDate] = useState(dayjs())
   const [searchParams, setSearchParams] = useSearchParams()
   const [currPage, setCurrPage] = useState(1)
@@ -51,7 +46,12 @@ function CalendarView() {
   }
 
   const handleMonthChange = async (m: Dayjs) => {
-    initTodosCount(m.startOf('month'), m.endOf('month'))
+    initTodosCount([])
+    const todosCount = await fetchTodosCount(
+      m.startOf('month'),
+      m.endOf('month')
+    )
+    initTodosCount(todosCount)
   }
 
   const isToday = useMemo(
@@ -61,6 +61,7 @@ function CalendarView() {
 
   useEffect(() => {
     initTodos([])
+    initTodosCount([])
 
     const getTodos = async () => {
       const currDate = dayjs(
@@ -68,7 +69,11 @@ function CalendarView() {
       )
       setSelectedDate(currDate)
 
-      initTodosCount(currDate.startOf('month'), currDate.endOf('month'))
+      const todosCount = await fetchTodosCount(
+        currDate.startOf('month'),
+        currDate.endOf('month')
+      )
+      initTodosCount(todosCount)
 
       const todosResult = await fetchTodos({
         start: currDate.startOf('day'),
