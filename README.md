@@ -9,7 +9,7 @@
     To be used on mobile, with extra features like batch complete/delete todo and calendar view.
     <br />
     <br />
-    <a href="http://54.215.127.189">View Demo</a>
+    <a href="http://13.57.211.62">View Demo</a>
   </p>
 </div>
 
@@ -18,7 +18,7 @@
 
 <p>This project is built for demonstration and still under development.</p>
 
-[![Product Name Screen Shot][product-screenshot]](http://54.215.127.189)
+[![Product Name Screen Shot][product-screenshot]](http://13.57.211.62)
 
 
 
