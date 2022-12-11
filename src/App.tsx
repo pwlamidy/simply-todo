@@ -1,14 +1,10 @@
 import { Box, CssBaseline, Paper } from '@mui/material'
-import { lazy, Suspense, useMemo } from 'react'
-import { Route, Routes, useSearchParams } from 'react-router-dom'
+import { useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import './App.css'
-import LoadingSpinner from './components/LoadingSpinner'
 import SelectBottomNavigation from './components/SelectBottomNavigation'
 import SimpleBottomNavigation from './components/SimpleBottomNavigation'
-
-const CalendarView = lazy(() => import('./components/CalendarView'))
-const EditToDoModal = lazy(() => import('./components/EditToDoModal'))
-const ToDoItemList = lazy(() => import('./components/ToDoItemList'))
+import Router from './router/router'
 
 function App() {
   const [searchParams] = useSearchParams()
@@ -43,32 +39,7 @@ function App() {
           marginTop: '40px',
         }}
       >
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <ToDoItemList />
-              </Suspense>
-            }
-          ></Route>
-          <Route
-            path="/calendar"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <CalendarView />
-              </Suspense>
-            }
-          ></Route>
-          <Route
-            path="/edit/:id"
-            element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <EditToDoModal />
-              </Suspense>
-            }
-          ></Route>
-        </Routes>
+        <Router />
       </Box>
       <Paper
         sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}
