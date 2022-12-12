@@ -1,54 +1,47 @@
-import { Box, CssBaseline, Paper } from '@mui/material'
-import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Suspense } from 'react'
+import { Route, Routes } from 'react-router-dom'
 import './App.css'
-import SelectBottomNavigation from './components/SelectBottomNavigation'
-import SimpleBottomNavigation from './components/SimpleBottomNavigation'
-import Router from './router/router'
+import AccessControl from './components/AccessControl/AccessControl'
+import NoAccess from './components/AccessControl/NoAccess'
+import AppLayout from './components/Layout/AppLayout'
+import LoadingSpinner from './components/LoadingSpinner'
+import pagesData from './router/pagesData'
+import { RouterType } from './types/router.types'
 
 function App() {
-  const [searchParams] = useSearchParams()
-
-  const isSelectMode = useMemo(() => {
-    return new URLSearchParams(searchParams).get('mode') === 'select'
-  }, [searchParams])
-
   return (
-    <Box sx={{ pb: 7 }}>
-      <CssBaseline />
-      <Paper
-        elevation={1}
-        sx={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          maxHeight: '40px',
-          height: '40px',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1,
-          textTransform: 'uppercase',
-        }}
-      >
-        {isSelectMode ? 'Select Todo' : 'Todo'}
-      </Paper>
-      <Box
-        sx={{
-          marginTop: '40px',
-        }}
-      >
-        <Router />
-      </Box>
-      <Paper
-        sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}
-        elevation={3}
-      >
-        {!isSelectMode && <SimpleBottomNavigation />}
-        {isSelectMode && <SelectBottomNavigation />}
-      </Paper>
-    </Box>
+    <Routes>
+      {pagesData
+        .filter((p) => !p.protected)
+        .map(({ path, title, element }: RouterType) => {
+          return (
+            <Route
+              key={title}
+              path={`/${path}`}
+              element={
+                <Suspense fallback={<LoadingSpinner />}>{element}</Suspense>
+              }
+            />
+          )
+        })}
+      <Route element={<AppLayout />}>
+        {pagesData
+          .filter((p) => p.protected)
+          .map(({ path, title, element }: RouterType) => {
+            return (
+              <Route
+                key={title}
+                path={`/${path}`}
+                element={
+                  <AccessControl renderNoAccess={<NoAccess />}>
+                    <Suspense fallback={<LoadingSpinner />}>{element}</Suspense>
+                  </AccessControl>
+                }
+              />
+            )
+          })}
+      </Route>
+    </Routes>
   )
 }
 
