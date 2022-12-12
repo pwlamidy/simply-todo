@@ -20,8 +20,8 @@ import {
   deleteServerTodo,
   fetchTodo,
   updateServerTodo,
-} from '../utils/api'
-import AlertDialog from './AlertDialog'
+} from '../utils/api/todo'
+import AlertDialog from './Alert/AlertDialog'
 import BasicDatePicker from './BasicDatePicker'
 import BasicTimePicker from './BasicTimePicker'
 

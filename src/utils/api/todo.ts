@@ -1,6 +1,6 @@
 import { Dayjs } from 'dayjs'
-import { FetchTodoParam, Todo } from '../../types'
-import { PAGE_SIZE } from './constants'
+import { FetchTodoParam, Todo } from '../../../types'
+import { PAGE_SIZE } from '../constants'
 
 export const fetchTodos = async (
   {

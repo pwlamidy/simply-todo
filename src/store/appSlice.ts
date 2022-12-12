@@ -2,6 +2,7 @@ import { StateCreator } from 'zustand'
 
 export interface AppSlice {
   loading: boolean
+  toggleLoading: () => void
 
   // for multi-select todos
   selected: string[]
@@ -16,7 +17,6 @@ export const createAppSlice: StateCreator<
   AppSlice
 > = (set) => ({
   loading: false,
-  selected: [],
   toggleLoading: async () => {
     set(
       (state) => ({
@@ -26,6 +26,8 @@ export const createAppSlice: StateCreator<
       'toggleLoading'
     )
   },
+
+  selected: [],
   toggleSelected: (id) => {
     set(
       (state) => {

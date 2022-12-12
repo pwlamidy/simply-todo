@@ -3,7 +3,7 @@ import BottomNavigation from '@mui/material/BottomNavigation'
 import BottomNavigationAction from '@mui/material/BottomNavigationAction'
 import { useSearchParams } from 'react-router-dom'
 import { useStore } from '../store'
-import { deleteServerTodos, toggleServerTodos } from '../utils/api'
+import { deleteServerTodos, toggleServerTodos } from '../utils/api/todo'
 
 function SelectBottomNavigation() {
   const { selected, initTodos, todos, toggleComplete } = useStore()

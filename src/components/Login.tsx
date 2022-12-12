@@ -1,4 +1,10 @@
-import { Button, Grid, Link, TextField } from '@mui/material'
+import {
+  Alert,
+  AlertTitle,
+  Button, Grid,
+  Link,
+  TextField
+} from '@mui/material'
 import SimplyTodoLogo from '../styles/images/simplytodo.png'
 
 import Box from '@mui/material/Box'
@@ -6,6 +12,10 @@ import Container from '@mui/material/Container'
 import CssBaseline from '@mui/material/CssBaseline'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import { useState } from 'react'
+import { useStore } from '../store'
+import { signInByUsername } from '../utils/api/auth'
+import { useNavigate } from 'react-router-dom'
 
 function Copyright(props: any) {
   return (
@@ -23,13 +33,29 @@ function Copyright(props: any) {
 const theme = createTheme()
 
 function Login() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const navigate = useNavigate()
+  const [showLoginError, setShowLoginError] = useState(false)
+  const { loading, toggleLoading, setAuthData } = useStore()
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const data = new FormData(event.currentTarget)
-    console.log({
-      email: data.get('username'),
-      password: data.get('password'),
-    })
+
+    toggleLoading()
+
+    const res = await signInByUsername(
+      event.currentTarget.username.value,
+      event.currentTarget.password.value
+    )
+
+    toggleLoading()
+
+    if (res.status === 401) {
+      setShowLoginError(true)
+    } else {
+      setAuthData(res.data.accessToken)
+      setShowLoginError(false)
+      navigate('/list')
+    }
   }
 
   return (
@@ -51,7 +77,14 @@ function Login() {
             noValidate
             sx={{ mt: 1 }}
           >
+            {showLoginError && (
+              <Alert severity="error">
+                <AlertTitle>Error</AlertTitle>
+                Username/Password incorrect
+              </Alert>
+            )}
             <TextField
+              disabled={loading}
               margin="normal"
               required
               fullWidth
@@ -62,6 +95,7 @@ function Login() {
               autoFocus
             />
             <TextField
+              disabled={loading}
               margin="normal"
               required
               fullWidth
@@ -72,6 +106,7 @@ function Login() {
               autoComplete="current-password"
             />
             <Button
+              disabled={loading}
               type="submit"
               fullWidth
               variant="contained"

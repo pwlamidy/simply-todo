@@ -10,7 +10,7 @@ import { Link as RouterLink, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
 import { useDebounce } from '../hooks/useDebounce'
 import { useStore } from '../store'
-import { toggleServerTodo, updateServerTodo } from '../utils/api'
+import { toggleServerTodo, updateServerTodo } from '../utils/api/todo'
 
 type Props = {
   todo: Todo
