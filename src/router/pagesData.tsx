@@ -1,4 +1,5 @@
 import { lazy } from 'react'
+import SignUp from '../components/SignUp'
 import { RouterType } from '../types/router.types'
 
 const Login = lazy(() => import('../components/Login'))
@@ -11,6 +12,12 @@ const pagesData: RouterType[] = [
     path: '/login',
     element: <Login />,
     title: 'login',
+    protected: false
+  },
+  {
+    path: '/signup',
+    element: <SignUp />,
+    title: 'singup',
     protected: false
   },
   {
