@@ -1,5 +1,5 @@
-import { Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Suspense, useEffect } from 'react'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import AccessControl from './components/AccessControl/AccessControl'
 import NoAccess from './components/AccessControl/NoAccess'
@@ -9,6 +9,15 @@ import pagesData from './router/pagesData'
 import { RouterType } from './types/router.types'
 
 function App() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (location.pathname === '/') {
+      navigate('/login')
+    }
+  }, [])
+
   return (
     <Routes>
       {pagesData
