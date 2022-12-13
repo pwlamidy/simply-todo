@@ -5,7 +5,7 @@ import * as React from 'react'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 
 enum RouteMapping {
-  ROOT = '/',
+  ROOT = '/list',
   CALENDAR = '/calendar',
 }
 
