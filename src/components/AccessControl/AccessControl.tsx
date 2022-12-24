@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../../store'
+import { parseJWT } from '../../utils/helper'
 
 type Props = {
   children: JSX.Element
@@ -12,14 +13,19 @@ function AccessControl({ children, renderNoAccess }: Props): JSX.Element {
   const { accessToken } = useStore()
 
   const permitted = useMemo(() => {
-    return accessToken && accessToken.length > 0
+    let hasValidToken = false
+    if (accessToken && accessToken.length > 0) {
+      const payload = parseJWT(accessToken)
+      hasValidToken = payload.exp * 1000 >= Date.now()
+    }
+    return hasValidToken
   }, [accessToken])
 
   useEffect(() => {
     if (!permitted) {
       navigate('/no-access')
     }
-  }, [permitted])
+  }, [permitted, navigate])
 
   if (permitted) {
     return children
