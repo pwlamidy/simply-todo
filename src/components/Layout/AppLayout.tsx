@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { Outlet, useSearchParams } from 'react-router-dom'
 import SelectBottomNavigation from '../SelectBottomNavigation'
 import SimpleBottomNavigation from '../SimpleBottomNavigation'
+import Header from './Header'
 
 function AppLayout() {
   const [searchParams] = useSearchParams()
@@ -14,24 +15,7 @@ function AppLayout() {
   return (
     <Box sx={{ pb: 7 }}>
       <CssBaseline />
-      <Paper
-        elevation={1}
-        sx={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          maxHeight: '40px',
-          height: '40px',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1,
-          textTransform: 'uppercase',
-        }}
-      >
-        {isSelectMode ? 'Select Todo' : 'Todo'}
-      </Paper>
+      <Header isSelectMode={isSelectMode} />
       <Box
         sx={{
           marginTop: '40px',
