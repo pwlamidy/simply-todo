@@ -55,6 +55,9 @@ function Login() {
       setAuthData(res.data.accessToken)
       setShowLoginError(false)
       navigate('/list')
+      
+      // Reload to prevent localstorage access token loading error
+      window.location.reload()
     }
   }
 

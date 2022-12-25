@@ -1,8 +1,9 @@
 import { Dayjs } from 'dayjs'
+import { api } from './api'
 import { FetchTodoParam, Todo } from '../../../types'
 import { PAGE_SIZE } from '../constants'
 
-export const fetchTodos = async (
+export const fetchTodos: any = async (
   {
     start,
     end,
@@ -28,7 +29,7 @@ export const fetchTodos = async (
     .map((v) => `${Object.keys(v)[0]}=${Object.values(v)[0]}`)
     .join('&')
 
-  const res = await fetch(
+  const res = await api.get(
     `${process.env.REACT_APP_TODO_API_ENDPOINT}` +
       (queryParams.length > 0 ? `?${queryParams}` : '')
   )
@@ -37,77 +38,60 @@ export const fetchTodos = async (
   return data
 }
 
-export const fetchTodo = async (id: string) => {
-  const res = await fetch(`${process.env.REACT_APP_TODO_API_ENDPOINT}/${id}`)
-  const data = await res.json()
+export const fetchTodo: any = async (id: string) => {
+  const res = await api.get(`${process.env.REACT_APP_TODO_API_ENDPOINT}/${id}`)
+  const data: any = await res.json()
 
   return data['data']
 }
 
 export const addServerTodo = async (todo: Todo) => {
-  const res = await fetch(`${process.env.REACT_APP_TODO_API_ENDPOINT}`, {
-    method: 'POST',
-    headers: {
-      'Content-type': 'application/json',
-    },
-    body: JSON.stringify(todo),
+  const res = await api.post(`${process.env.REACT_APP_TODO_API_ENDPOINT}`, {
+    json: todo,
   })
 
-  const data = await res.json()
+  const data: any = await res.json()
 
   return data['data']
 }
 
 export const updateServerTodo = async (todo: Todo) => {
-  const res = await fetch(
+  const res = await api.put(
     `${process.env.REACT_APP_TODO_API_ENDPOINT}/${todo.id}`,
     {
-      method: 'PUT',
-      headers: {
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify(todo),
+      json: todo,
     }
   )
 
-  const data = await res.json()
+  const data: any = await res.json()
 
   return data['data']
 }
 
 export const deleteServerTodos = async (ids: Array<string>) => {
-  await fetch(`${process.env.REACT_APP_BATCH_TODO_API_ENDPOINT}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-type': 'application/json',
-    },
-    body: JSON.stringify(
-      ids.map((id) => {
-        return {
-          id,
-        }
-      })
-    ),
+  await api.delete(`${process.env.REACT_APP_BATCH_TODO_API_ENDPOINT}`, {
+    json: ids.map((id) => {
+      return {
+        id,
+      }
+    }),
   })
 }
 
 export const deleteServerTodo = async (id: string) => {
-  await fetch(`${process.env.REACT_APP_TODO_API_ENDPOINT}/${id}`, {
-    method: 'DELETE',
-  })
+  await api.delete(`${process.env.REACT_APP_TODO_API_ENDPOINT}/${id}`)
 }
 
 export const toggleServerTodo = async (id: string) => {
   const todoToToggle = await fetchTodo(id)
   const updTodo = { ...todoToToggle, completed: !todoToToggle.completed }
 
-  const res = await fetch(`${process.env.REACT_APP_TODO_API_ENDPOINT}/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-type': 'application/json',
-    },
-    body: JSON.stringify(updTodo),
-  })
+  const res = await api.put(
+    `${process.env.REACT_APP_TODO_API_ENDPOINT}/${id}`,
+    {
+      json: updTodo,
+    }
+  )
 
   const data = await res.json()
 
@@ -120,15 +104,14 @@ export const toggleServerTodos = async (ids: string[]) => {
     updTodos.push({ id, completed: true } as Todo)
   })
 
-  const res = await fetch(`${process.env.REACT_APP_BATCH_TODO_API_ENDPOINT}`, {
-    method: 'POST',
-    headers: {
-      'Content-type': 'application/json',
-    },
-    body: JSON.stringify(updTodos),
-  })
+  const res = await api.post(
+    `${process.env.REACT_APP_BATCH_TODO_API_ENDPOINT}`,
+    {
+      json: updTodos,
+    }
+  )
 
-  const data = await res.json()
+  const data: any = await res.json()
 
   return data['data']
 }
@@ -146,9 +129,11 @@ export const fetchTodosCount = async (start: Dayjs, end: Dayjs) => {
     .map((v) => `${Object.keys(v)[0]}=${Object.values(v)[0]}`)
     .join('&')
 
-  const res = await fetch(`${process.env.REACT_APP_TODO_COUNT_API_ENDPOINT}?${queryParams}`)
+  const res = await api.get(
+    `${process.env.REACT_APP_TODO_COUNT_API_ENDPOINT}?${queryParams}`
+  )
 
-  const data = await res.json()
+  const data: any = await res.json()
 
   return data['data']
 }
