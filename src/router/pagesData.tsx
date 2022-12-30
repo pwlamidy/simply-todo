@@ -1,8 +1,8 @@
 import { lazy } from 'react'
-import SignUp from '../components/SignUp'
 import { RouterType } from '../types/router.types'
 
 const Login = lazy(() => import('../components/Login'))
+const SignUp = lazy(() => import('../components/SignUp'))
 const CalendarView = lazy(() => import('../components/CalendarView'))
 const EditToDoModal = lazy(() => import('../components/EditToDoModal'))
 const ToDoItemList = lazy(() => import('../components/ToDoItemList'))
