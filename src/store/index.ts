@@ -18,7 +18,10 @@ export const useStore = create<AppSlice & TodosSlice & AuthSlice>()(
           // Configure persist middleware
           name: 'SIMPLY_TODO',
           getStorage: () => localStorage,
-          partialize: (state) => ({ accessToken: state.accessToken }),
+          partialize: (state) => ({
+            accessToken: state.accessToken,
+            refreshToken: state.refreshToken,
+          }),
         }
       )
     )

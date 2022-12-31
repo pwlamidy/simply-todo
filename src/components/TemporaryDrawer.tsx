@@ -50,7 +50,7 @@ export default function TemporaryDrawer({
   }, [isDrawerOpen, toggleDrawer])
 
   const logout = () => {
-    setAuthData('')
+    setAuthData()
     navigate('/login')
   }
 

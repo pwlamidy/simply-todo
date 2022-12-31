@@ -1,8 +1,14 @@
 import { StateCreator } from 'zustand'
 
+type AuthData = {
+  accessToken: string
+  refreshToken: string
+}
+
 export interface AuthSlice {
   accessToken: string
-  setAuthData: (accessToken: string) => void
+  refreshToken: string
+  setAuthData: ({ accessToken, refreshToken }?: AuthData) => void
 }
 
 export const createAuthSlice: StateCreator<
@@ -12,13 +18,15 @@ export const createAuthSlice: StateCreator<
   AuthSlice
 > = (set) => ({
   accessToken: '',
-  setAuthData: (accessToken) => {
+  refreshToken: '',
+  setAuthData: ({ accessToken, refreshToken } = {} as AuthData) => {
     set(
       () => ({
         accessToken: accessToken,
+        refreshToken: refreshToken,
       }),
       false,
       'setAuthData'
     )
-  }
+  },
 })

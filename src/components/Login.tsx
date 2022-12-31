@@ -1,10 +1,4 @@
-import {
-  Alert,
-  AlertTitle,
-  Button, Grid,
-  Link,
-  TextField
-} from '@mui/material'
+import { Alert, AlertTitle, Button, Grid, Link, TextField } from '@mui/material'
 import SimplyTodoLogo from '../styles/images/simplytodo.png'
 
 import Box from '@mui/material/Box'
@@ -52,12 +46,12 @@ function Login() {
     if (res.status === 401) {
       setShowLoginError(true)
     } else {
-      setAuthData(res.data.accessToken)
+      setAuthData({
+        accessToken: res.data.accessToken,
+        refreshToken: res.data.refreshToken,
+      })
       setShowLoginError(false)
       navigate('/list')
-      
-      // Reload to prevent localstorage access token loading error
-      window.location.reload()
     }
   }
 
