@@ -7,9 +7,9 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
 import { signInByUsername } from '../utils/api/auth'
-import { useNavigate } from 'react-router-dom'
 
 function Copyright(props: any) {
   return (
@@ -29,7 +29,7 @@ const theme = createTheme()
 function Login() {
   const navigate = useNavigate()
   const [showLoginError, setShowLoginError] = useState(false)
-  const { loading, toggleLoading, setAuthData } = useStore()
+  const { loading, toggleLoading } = useStore()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -46,10 +46,8 @@ function Login() {
     if (res.status === 401) {
       setShowLoginError(true)
     } else {
-      setAuthData({
-        accessToken: res.data.accessToken,
-        refreshToken: res.data.refreshToken,
-      })
+      localStorage.setItem("SIMPLY_TODO_ACCESS_TOKEN", res.data.accessToken)
+      localStorage.setItem("SIMPLY_TODO_REFRESH_TOKEN", res.data.refreshToken)
       setShowLoginError(false)
       navigate('/list')
     }

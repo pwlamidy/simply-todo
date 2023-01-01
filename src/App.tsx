@@ -7,27 +7,22 @@ import PageNotFound from './components/AccessControl/PageNotFound'
 import AppLayout from './components/Layout/AppLayout'
 import LoadingSpinner from './components/LoadingSpinner'
 import pagesData from './router/pagesData'
-import { useStore } from './store'
 import { RouterType } from './types/router.types'
-import { parseJWT } from './utils/helper'
 
 function App() {
-  const { accessToken } = useStore()
   const location = useLocation()
   const navigate = useNavigate()
 
   useEffect(() => {
     if (location.pathname === '/') {
       let defaultRoute = '/login'
+      const accessToken = localStorage.getItem('SIMPLY_TODO_ACCESS_TOKEN')
       if (accessToken && accessToken.trim()) {
-        const payload = parseJWT(accessToken)
-        if (payload.exp && payload.exp * 1000 >= Date.now()) {
-          defaultRoute = '/list'
-        }
+        defaultRoute = '/list'
       }
       navigate(defaultRoute)
     }
-  }, [accessToken, location, navigate])
+  }, [location, navigate])
 
   return (
     <Routes>

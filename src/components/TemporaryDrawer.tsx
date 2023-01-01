@@ -13,10 +13,9 @@ import {
   MouseEvent,
   SetStateAction,
   useCallback,
-  useEffect,
+  useEffect
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useStore } from '../store'
 
 type Props = {
   isDrawerOpen: boolean
@@ -28,7 +27,6 @@ export default function TemporaryDrawer({
   setIsDrawerOpen,
 }: Props) {
   const navigate = useNavigate()
-  const { setAuthData } = useStore()
 
   const toggleDrawer = useCallback(
     (open: boolean) => (event: KeyboardEvent | MouseEvent) => {
@@ -50,7 +48,8 @@ export default function TemporaryDrawer({
   }, [isDrawerOpen, toggleDrawer])
 
   const logout = () => {
-    setAuthData()
+    localStorage.removeItem("SIMPLY_TODO_ACCESS_TOKEN")
+    localStorage.removeItem("SIMPLY_TODO_REFRESH_TOKEN")
     navigate('/login')
   }
 
