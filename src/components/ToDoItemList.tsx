@@ -1,6 +1,11 @@
 import { AddBox as AddBoxIcon, Rule as RuleIcon } from '@mui/icons-material'
 import { Button, Grid, List } from '@mui/material'
-import { useEffect, useMemo, useState } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { FetchTodoParam, Todo } from '../../types'
@@ -17,10 +22,27 @@ function ToDoItemList() {
   const [currPage, setCurrPage] = useState(1)
   const [todosTotal, setTodosTotal] = useState(0)
   const [focusId, setFocusId] = useState(null)
+  const listRef = useRef<HTMLUListElement | null>(null)
 
   useEffect(() => {
     scrollToTop()
   }, [])
+
+  useEffect(() => {
+    if (
+      currPage * PAGE_SIZE < todosTotal &&
+      todos.length > 0 &&
+      listRef.current &&
+      listRef.current.getBoundingClientRect().bottom < window.screen.height - 56
+    ) {
+      fetchTodos({ page: currPage + 1 } as FetchTodoParam).then(
+        (nextTodosResult: any) => {
+          initTodos([...todos, ...nextTodosResult['data']])
+          setCurrPage((prev) => prev + 1)
+        }
+      )
+    }
+  }, [listRef, todos, currPage, todosTotal, initTodos])
 
   useEffect(() => {
     initTodos([])
@@ -45,7 +67,7 @@ function ToDoItemList() {
     if (!hasEmptyTodo) {
       const newTodo = await addServerTodo({ title: '' } as Todo)
       addTodo(newTodo)
-      
+
       setFocusId(newTodo.id)
 
       scrollToTop()
@@ -64,7 +86,7 @@ function ToDoItemList() {
 
   return (
     <>
-      <List sx={{ marginBottom: '60px' }}>
+      <List sx={{ marginBottom: '60px' }} ref={listRef}>
         <InfiniteScroll
           dataLength={todos ? todos.length : 0}
           next={async () => {
