@@ -88,6 +88,7 @@ function Login() {
               name="username"
               autoComplete="username"
               autoFocus
+              defaultValue="demo"
             />
             <TextField
               disabled={loading}
@@ -99,6 +100,7 @@ function Login() {
               type="password"
               id="password"
               autoComplete="current-password"
+              defaultValue="demo"
             />
             <Button
               disabled={loading}
