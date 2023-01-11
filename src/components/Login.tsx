@@ -46,8 +46,8 @@ function Login() {
     if (res.status === 401) {
       setShowLoginError(true)
     } else {
-      localStorage.setItem("SIMPLY_TODO_ACCESS_TOKEN", res.data.accessToken)
-      localStorage.setItem("SIMPLY_TODO_REFRESH_TOKEN", res.data.refreshToken)
+      localStorage.setItem('SIMPLY_TODO_ACCESS_TOKEN', res.data.accessToken)
+      localStorage.setItem('SIMPLY_TODO_REFRESH_TOKEN', res.data.refreshToken)
       setShowLoginError(false)
       navigate('/list')
     }

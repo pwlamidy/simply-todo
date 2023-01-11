@@ -22,6 +22,8 @@ async function getRefreshToken() {
     localStorage.setItem('SIMPLY_TODO_ACCESS_TOKEN', data['accessToken'])
     localStorage.setItem('SIMPLY_TODO_REFRESH_TOKEN', data['refreshToken'])
   } else {
+    localStorage.removeItem('SIMPLY_TODO_ACCESS_TOKEN')
+    localStorage.removeItem('SIMPLY_TODO_REFRESH_TOKEN')
     if (window.confirm('Error: Session expired. Please login again.')) {
       window.location.replace('/login')
     }

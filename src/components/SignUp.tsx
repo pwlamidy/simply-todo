@@ -63,7 +63,7 @@ export default function SignUp() {
     if (res.status === 200) {
       setShowSignUpError(false)
       setErrorMessage('')
-      setShowSignUpSuccess(false)
+      setShowSignUpSuccess(true)
       setSuccessMessage(
         'Sign up success! You will be redirected to login page.'
       )
@@ -103,8 +103,8 @@ export default function SignUp() {
             <Grid container spacing={2}>
               {showSignUpSuccess && (
                 <Grid item xs={12}>
-                  <Alert severity="error">
-                    <AlertTitle>Error</AlertTitle>
+                  <Alert severity="success">
+                    <AlertTitle>Success</AlertTitle>
                     {successMessage}
                   </Alert>
                 </Grid>
