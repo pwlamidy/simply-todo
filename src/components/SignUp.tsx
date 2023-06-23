@@ -8,11 +8,13 @@ import Link from '@mui/material/Link'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { addDoc, collection } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { auth, db } from '../firebase'
 import { useStore } from '../store'
 import SimplyTodoLogo from '../styles/images/simplytodo.png'
-import { signUp } from '../utils/api/auth'
 
 function Copyright(props: any) {
   return (
@@ -35,7 +37,7 @@ export default function SignUp() {
   const [successMessage, setSuccessMessage] = useState('')
   const [showSignUpError, setShowSignUpError] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const { loading, toggleLoading } = useStore()
+  const { loading, toggleLoading, setAuthData } = useStore()
 
   useEffect(() => {
     return () => {
@@ -52,15 +54,20 @@ export default function SignUp() {
 
     toggleLoading()
 
-    const res = await signUp(
-      event.currentTarget.email.value,
-      event.currentTarget.username.value,
-      event.currentTarget.password.value
-    )
+    const email: string = event.currentTarget.email.value
+    const username: string = event.currentTarget.username.value
+    const password: string = event.currentTarget.password.value
 
-    toggleLoading()
+    try {
+      await createUserWithEmailAndPassword(auth, email, password)
 
-    if (res.status === 200) {
+      await addDoc(collection(db, 'users'), {
+        id: auth.currentUser?.uid,
+        name: username,
+      })
+
+      toggleLoading()
+
       setShowSignUpError(false)
       setErrorMessage('')
       setShowSignUpSuccess(true)
@@ -69,10 +76,9 @@ export default function SignUp() {
       )
 
       setTimeout(() => navigate('/login'), 5000)
-    } else if (res.status === 400) {
-      setShowSignUpError(true)
-      setErrorMessage(res.data.message)
-    } else {
+    } catch (error) {
+      toggleLoading()
+      console.error(error)
       setShowSignUpError(true)
       setErrorMessage('Invalid email/username/password')
     }

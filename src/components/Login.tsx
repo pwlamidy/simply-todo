@@ -6,10 +6,11 @@ import Container from '@mui/material/Container'
 import CssBaseline from '@mui/material/CssBaseline'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { auth } from '../firebase'
 import { useStore } from '../store'
-import { signInByUsername } from '../utils/api/auth'
 
 function Copyright(props: any) {
   return (
@@ -29,27 +30,29 @@ const theme = createTheme()
 function Login() {
   const navigate = useNavigate()
   const [showLoginError, setShowLoginError] = useState(false)
-  const { loading, toggleLoading } = useStore()
+  const { loading, toggleLoading, setAuthData } = useStore()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     toggleLoading()
 
-    const res = await signInByUsername(
-      event.currentTarget.username.value,
-      event.currentTarget.password.value
-    )
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        event.currentTarget.username.value,
+        event.currentTarget.password.value
+      )
 
-    toggleLoading()
-
-    if (res.status === 401) {
-      setShowLoginError(true)
-    } else {
-      localStorage.setItem('SIMPLY_TODO_ACCESS_TOKEN', res.data.accessToken)
-      localStorage.setItem('SIMPLY_TODO_REFRESH_TOKEN', res.data.refreshToken)
+      setAuthData({ accessToken: '', refreshToken: '', user: auth.currentUser })
+      
       setShowLoginError(false)
+      toggleLoading()
       navigate('/list')
+    } catch (error) {
+      toggleLoading()
+      console.error(error)
+      setShowLoginError(true)
     }
   }
 
@@ -88,7 +91,7 @@ function Login() {
               name="username"
               autoComplete="username"
               autoFocus
-              defaultValue="demo"
+              defaultValue="test@test.com"
             />
             <TextField
               disabled={loading}
@@ -100,7 +103,7 @@ function Login() {
               type="password"
               id="password"
               autoComplete="current-password"
-              defaultValue="demo"
+              defaultValue="123456"
             />
             <Button
               disabled={loading}
