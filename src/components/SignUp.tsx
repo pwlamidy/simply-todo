@@ -37,7 +37,7 @@ export default function SignUp() {
   const [successMessage, setSuccessMessage] = useState('')
   const [showSignUpError, setShowSignUpError] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const { loading, toggleLoading, setAuthData } = useStore()
+  const { loading, toggleLoading } = useStore()
 
   useEffect(() => {
     return () => {

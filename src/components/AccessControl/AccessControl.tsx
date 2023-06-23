@@ -1,5 +1,7 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { auth } from '../../firebase'
+import { useStore } from '../../store'
 
 type Props = {
   children: JSX.Element
@@ -8,22 +10,21 @@ type Props = {
 
 function AccessControl({ children, renderNoAccess }: Props): JSX.Element {
   const navigate = useNavigate()
-
-  const permitted = useMemo(() => {
-    const accessToken = localStorage.getItem("SIMPLY_TODO_ACCESS_TOKEN")
-    return accessToken && accessToken.length > 0
-  }, [])
+  const { setAuthData } = useStore()
 
   useEffect(() => {
-    if (!permitted) {
-      navigate('/no-access')
-    }
-  }, [permitted, navigate])
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+      setAuthData({ accessToken: '', refreshToken: '', user: firebaseUser })
 
-  if (permitted) {
-    return children
-  }
+      const token = firebaseUser?.getIdToken()
+      if (token === undefined) {
+        navigate('/no-access')
+      }
+    })
 
-  return renderNoAccess
+    return unsubscribe
+  }, [setAuthData, navigate])
+
+  return children
 }
 export default AccessControl

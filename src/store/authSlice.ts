@@ -1,15 +1,16 @@
 import { StateCreator } from 'zustand'
-import { User as FirebaseUser } from 'firebase/auth'
+import { User } from 'firebase/auth'
 
 type AuthData = {
   accessToken: string
   refreshToken: string
-  user: FirebaseUser | null
+  user: User | null
 }
 
 export interface AuthSlice {
   accessToken: string
   refreshToken: string
+  user: User | null
   setAuthData: ({ accessToken, refreshToken, user }?: AuthData) => void
 }
 
@@ -21,6 +22,7 @@ export const createAuthSlice: StateCreator<
 > = (set) => ({
   accessToken: '',
   refreshToken: '',
+  user: null,
   setAuthData: ({ accessToken, refreshToken, user } = {} as AuthData) => {
     set(
       () => ({

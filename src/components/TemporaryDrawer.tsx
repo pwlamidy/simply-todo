@@ -6,6 +6,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
+import { signOut } from 'firebase/auth'
 import {
   Dispatch,
   Fragment,
@@ -16,6 +17,7 @@ import {
   useEffect
 } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { auth } from '../firebase'
 
 type Props = {
   isDrawerOpen: boolean
@@ -47,9 +49,8 @@ export default function TemporaryDrawer({
     toggleDrawer(isDrawerOpen)
   }, [isDrawerOpen, toggleDrawer])
 
-  const logout = () => {
-    localStorage.removeItem("SIMPLY_TODO_ACCESS_TOKEN")
-    localStorage.removeItem("SIMPLY_TODO_REFRESH_TOKEN")
+  const logout = async () => {
+    await signOut(auth)
     navigate('/login')
   }
 

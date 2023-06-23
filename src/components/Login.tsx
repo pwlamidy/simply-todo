@@ -78,7 +78,7 @@ function Login() {
             {showLoginError && (
               <Alert severity="error">
                 <AlertTitle>Error</AlertTitle>
-                Username/Password incorrect
+                Email/Password incorrect
               </Alert>
             )}
             <TextField
@@ -87,11 +87,11 @@ function Login() {
               required
               fullWidth
               id="username"
-              label="Username"
+              label="Email"
               name="username"
               autoComplete="username"
               autoFocus
-              defaultValue="test@test.com"
+              defaultValue="test3@test.com"
             />
             <TextField
               disabled={loading}
@@ -103,7 +103,7 @@ function Login() {
               type="password"
               id="password"
               autoComplete="current-password"
-              defaultValue="123456"
+              defaultValue="1234567"
             />
             <Button
               disabled={loading}
