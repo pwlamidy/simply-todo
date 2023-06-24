@@ -57,11 +57,12 @@ function ToDoItem({ todo, shouldFocus, setFocusId }: Props) {
           lastUpdatedAt: new Date(),
         } as Todo
         addToQueue(
-          new Promise(async () => {
+          new Promise(async (resolve) => {
             await updateDoc(doc(db, 'todos', updTodo.id), {
               ...updTodo,
               lastUpdatedAt: new Date()
             })
+            resolve(updTodo)
           })
         )
       }
