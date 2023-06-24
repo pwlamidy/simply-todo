@@ -1,9 +1,10 @@
 import { Delete as DeleteIcon, Done as DoneIcon } from '@mui/icons-material'
 import BottomNavigation from '@mui/material/BottomNavigation'
 import BottomNavigationAction from '@mui/material/BottomNavigationAction'
+import { doc, writeBatch } from 'firebase/firestore'
 import { useSearchParams } from 'react-router-dom'
+import { db } from '../firebase'
 import { useStore } from '../store'
-import { deleteServerTodos, toggleServerTodos } from '../utils/api/todo'
 
 function SelectBottomNavigation() {
   const { selected, initTodos, todos, toggleComplete } = useStore()
@@ -14,8 +15,13 @@ function SelectBottomNavigation() {
     <BottomNavigation showLabels>
       <BottomNavigationAction
         onClick={async () => {
-          await deleteServerTodos(selected)
-          initTodos(todos.filter(t => selected.indexOf(t.id) === -1))
+          const batch = writeBatch(db)
+          selected.forEach((id) => {
+            batch.delete(doc(db, 'todos', id))
+          })
+          await batch.commit()
+
+          initTodos(todos.filter((t) => selected.indexOf(t.id) === -1))
           setSearchParams({})
         }}
         label="Delete"
@@ -23,8 +29,16 @@ function SelectBottomNavigation() {
       />
       <BottomNavigationAction
         onClick={async () => {
-          await toggleServerTodos(selected)
-          selected.forEach(s => toggleComplete(s))
+          const batch = writeBatch(db)
+          selected.forEach((id) => {
+            const currTodo = todos.find((t) => t.id === id)
+            batch.update(doc(db, 'todos', id), {
+              completed: !currTodo?.completed,
+            })
+          })
+          await batch.commit()
+          
+          selected.forEach((s) => toggleComplete(s))
           setSearchParams({})
         }}
         label="Complete"

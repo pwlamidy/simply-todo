@@ -1,12 +1,21 @@
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { Box, List } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
+import {
+  collection,
+  getDocs,
+  limit,
+  query,
+  startAfter,
+  Timestamp,
+  where
+} from 'firebase/firestore'
 import { useEffect, useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useSearchParams } from 'react-router-dom'
-import { FetchTodoParam } from '../../types'
+import { Todo, TodosCount } from '../../types'
+import { auth, db } from '../firebase'
 import { useStore } from '../store'
-import { fetchTodos, fetchTodosCount } from '../utils/api/todo'
 import { PAGE_SIZE } from '../utils/constants'
 import BasicStaticDatePicker from './BasicStaticDatePicker'
 import ToDoItem from './ToDoItem'
@@ -35,22 +44,53 @@ function CalendarView() {
 
     setSelectedDate(d)
 
-    const todosResult = await fetchTodos({
-      start: d.startOf('day'),
-      end: d.endOf('day'),
-    } as FetchTodoParam)
+    const q = query(
+      collection(db, 'todos'),
+      where('user_id', '==', auth.currentUser?.uid),
+      where('date', '>=', Timestamp.fromDate(d.startOf('day').toDate())),
+      where('date', '<=', Timestamp.fromDate(d.endOf('day').toDate()))
+    )
 
-    setTodosTotal(todosResult['page']['total'])
+    const querySnapshot = await getDocs(q)
 
-    initTodos(todosResult['data'])
+    setTodosTotal(querySnapshot.size)
+
+    const todosResult: Todo[] = []
+    querySnapshot.forEach((doc) => {
+      todosResult.push({ ...doc.data(), id: doc.id } as Todo)
+    })
+
+    initTodos(todosResult)
   }
 
   const handleMonthChange = async (m: Dayjs) => {
     initTodosCount([])
-    const todosCount = await fetchTodosCount(
-      m.startOf('month'),
-      m.endOf('month')
+
+    const q = query(
+      collection(db, 'todos'),
+      where('user_id', '==', auth.currentUser?.uid),
+      where('date', '>=', Timestamp.fromDate(m.startOf('month').toDate())),
+      where('date', '<=', Timestamp.fromDate(m.endOf('month').toDate()))
     )
+
+    const querySnapshot = await getDocs(q)
+
+    const queryMonthlyCount: any = {}
+    querySnapshot.forEach((d) => {
+      if (d.data().date) {
+        const todoDate = d.data().date.toDate().toString()
+        if (Object.keys(queryMonthlyCount).indexOf(todoDate) > -1) {
+          queryMonthlyCount[todoDate] += 1
+        }
+      }
+    })
+    const todosCount: TodosCount[] = Object.keys(queryMonthlyCount).map((d) => {
+      return {
+        date: new Date(d),
+        total: queryMonthlyCount[d],
+      }
+    })
+
     initTodosCount(todosCount)
   }
 
@@ -69,24 +109,73 @@ function CalendarView() {
       )
       setSelectedDate(currDate)
 
-      const todosCount = await fetchTodosCount(
-        currDate.startOf('month'),
-        currDate.endOf('month')
+      // This month's todos
+      const currMonthQuery = query(
+        collection(db, 'todos'),
+        where('user_id', '==', auth.currentUser?.uid),
+        where(
+          'date',
+          '>=',
+          Timestamp.fromDate(currDate.startOf('month').toDate())
+        ),
+        where(
+          'date',
+          '<=',
+          Timestamp.fromDate(currDate.endOf('month').toDate())
+        )
       )
+
+      const querySnapshot = await getDocs(currMonthQuery)
+
+      const queryMonthlyCount: any = {}
+      querySnapshot.forEach((queryDoc) => {
+        if (queryDoc.data().date) {
+          const todoDate = queryDoc.data().date.toDate().toString()
+          if (Object.keys(queryMonthlyCount).indexOf(todoDate) > -1) {
+            queryMonthlyCount[todoDate] += 1
+          }
+        }
+      })
+      const todosCount: TodosCount[] = Object.keys(queryMonthlyCount).map(
+        (d) => {
+          return {
+            date: new Date(d),
+            total: queryMonthlyCount[d],
+          }
+        }
+      )
+
       initTodosCount(todosCount)
 
-      const todosResult = await fetchTodos({
-        start: currDate.startOf('day'),
-        end: currDate.endOf('day'),
-      } as FetchTodoParam)
+      // Today's todos
+      const currDateQuery = query(
+        collection(db, 'todos'),
+        where('user_id', '==', auth.currentUser?.uid),
+        where(
+          'date',
+          '>=',
+          Timestamp.fromDate(currDate.startOf('day').toDate())
+        ),
+        where('date', '<=', Timestamp.fromDate(currDate.endOf('day').toDate()))
+      )
 
-      setTodosTotal(todosResult['page']['total'])
+      const currDateQuerySnapshot = await getDocs(currDateQuery)
 
-      initTodos(todosResult['data'])
+      setTodosTotal(currDateQuerySnapshot.size)
+
+      const currDateTodosResult: Todo[] = []
+      currDateQuerySnapshot.forEach((doc) => {
+        currDateTodosResult.push({ ...doc.data(), id: doc.id } as Todo)
+      })
+
+      initTodos(currDateTodosResult)
     }
 
-    getTodos()
-  }, [searchParams, initTodosCount, initTodos])
+    if (auth.currentUser) {
+      getTodos()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, initTodosCount, initTodos, auth.currentUser])
 
   return (
     <Box
@@ -129,13 +218,30 @@ function CalendarView() {
             <InfiniteScroll
               dataLength={todos ? todos.length : 0}
               next={async () => {
-                const nextTodosResult = await fetchTodos({
-                  start: selectedDate.startOf('day'),
-                  end: selectedDate.endOf('day'),
-                  page: currPage + 1,
-                } as FetchTodoParam)
-                initTodos([...todos, ...nextTodosResult['data']])
-                setCurrPage((prev) => prev + 1)
+                getDocs(
+                  query(
+                    collection(db, 'todos'),
+                    where('user_id', '==', auth.currentUser?.uid),
+                    where(
+                      'date',
+                      '>=',
+                      Timestamp.fromDate(selectedDate.startOf('day').toDate())
+                    ),
+                    where(
+                      'date',
+                      '<=',
+                      Timestamp.fromDate(selectedDate.endOf('day').toDate())
+                    ),
+                    startAfter(todos[-1].id),
+                    limit(10)
+                  )
+                ).then((querySnapshot) => {
+                  const newData: Todo[] = querySnapshot.docs.map(
+                    (doc) => ({ ...doc.data(), id: doc.id } as Todo)
+                  )
+                  initTodos([...todos, ...newData])
+                  setCurrPage((prev) => prev + 1)
+                })
               }}
               hasMore={currPage * PAGE_SIZE < todosTotal}
               loader={<h4>Loading...</h4>}

@@ -11,16 +11,20 @@ import Toolbar from '@mui/material/Toolbar'
 import { TransitionProps } from '@mui/material/transitions'
 import Typography from '@mui/material/Typography'
 import dayjs, { Dayjs } from 'dayjs'
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  Timestamp,
+  updateDoc,
+} from 'firebase/firestore'
 import { forwardRef, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Todo } from '../../types'
+import { db } from '../firebase'
 import { useStore } from '../store'
-import {
-  addServerTodo,
-  deleteServerTodo,
-  fetchTodo,
-  updateServerTodo,
-} from '../utils/api/todo'
 import AlertDialog from './Alert/AlertDialog'
 import BasicDatePicker from './BasicDatePicker'
 import BasicTimePicker from './BasicTimePicker'
@@ -39,15 +43,21 @@ function EditToDoModal() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { id } = useParams()
-  const { deleteTodo } = useStore()
+  const { deleteTodo, user } = useStore()
   const [currTodo, setCurrTodo] = useState<Todo>({} as Todo)
   const [dateVal, setDateVal] = useState<Dayjs | null>(null)
   const [timeVal, setTimeVal] = useState<Dayjs | null>(null)
 
   useEffect(() => {
     const getTodo = async () => {
-      const todo = await fetchTodo(`${id}`)
-      setCurrTodo(todo)
+      const todo = await getDoc(doc(db, 'todos', `${id}`))
+      if (todo.exists()) {
+        let todoData = { ...todo.data() }
+        if (todoData.date) {
+          todoData = { ...todoData, date: todo.data().date.toDate() }
+        }
+        setCurrTodo(todoData as Todo)
+      }
     }
 
     if (id && id !== 'undefined') {
@@ -125,7 +135,7 @@ function EditToDoModal() {
 
   const handleDeleteConfirm = async () => {
     if (id && id !== 'undefined') {
-      await deleteServerTodo(id)
+      await deleteDoc(doc(db, 'todos', id))
       deleteTodo(id)
     }
     handleClose()
@@ -166,11 +176,23 @@ function EditToDoModal() {
                   })
                 }
 
+                let updData: any = {
+                  ...defaultTodo,
+                  user_id: user?.uid,
+                }
+
+                if (currTodo.date) {
+                  updData = {
+                    ...updData,
+                    date: Timestamp.fromDate(new Date(currTodo.date)),
+                  }
+                }
+
                 if (!currTodo?.id) {
                   // New todo
-                  await addServerTodo(defaultTodo)
+                  await addDoc(collection(db, 'todos'), updData)
                 } else {
-                  await updateServerTodo(defaultTodo)
+                  await updateDoc(doc(db, 'todos', defaultTodo.id), updData)
                 }
                 navigate(-1)
               }}

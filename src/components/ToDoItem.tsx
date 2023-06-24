@@ -5,12 +5,13 @@ import {
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import { IconButton, Input, ListItem, ListItemIcon } from '@mui/material'
+import { doc, updateDoc } from 'firebase/firestore'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link as RouterLink, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
+import { db } from '../firebase'
 import { useDebounce } from '../hooks/useDebounce'
 import { useStore } from '../store'
-import { toggleServerTodo, updateServerTodo } from '../utils/api/todo'
 
 type Props = {
   todo: Todo
@@ -53,8 +54,16 @@ function ToDoItem({ todo, shouldFocus, setFocusId }: Props) {
         const updTodo = {
           ...todo,
           title: titleText,
+          lastUpdatedAt: new Date(),
         } as Todo
-        addToQueue(updateServerTodo(updTodo))
+        addToQueue(
+          new Promise(async () => {
+            await updateDoc(doc(db, 'todos', updTodo.id), {
+              ...updTodo,
+              lastUpdatedAt: new Date()
+            })
+          })
+        )
       }
 
       handleTitleChange(debounceInput)
@@ -80,7 +89,10 @@ function ToDoItem({ todo, shouldFocus, setFocusId }: Props) {
       {!isSelectMode && (
         <ListItemIcon
           onClick={async () => {
-            await toggleServerTodo(todo.id)
+            updateDoc(doc(db, 'todos', todo.id), {
+              ...todo,
+              completed: !todo.completed
+            })
             toggleComplete(todo.id)
           }}
         >
@@ -103,7 +115,7 @@ function ToDoItem({ todo, shouldFocus, setFocusId }: Props) {
       <Input
         sx={{
           color: todo.completed ? '#b5b5b5' : 'inherit',
-          textDecoration: todo.completed ? 'line-through' : 'inherit'
+          textDecoration: todo.completed ? 'line-through' : 'inherit',
         }}
         inputRef={(input) => input && shouldFocus && input.focus()}
         placeholder="(Please input title)"
