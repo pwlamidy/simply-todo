@@ -91,7 +91,7 @@ function Login() {
               name="username"
               autoComplete="username"
               autoFocus
-              defaultValue="test3@test.com"
+              defaultValue="test@test.com"
             />
             <TextField
               disabled={loading}
