@@ -56,6 +56,9 @@ function EditToDoModal() {
         if (todoData.date) {
           todoData = { ...todoData, date: todo.data().date.toDate() }
         }
+        if (todoData.time) {
+          todoData = { ...todoData, time: todo.data().time.toDate() }
+        }
         setCurrTodo(todoData as Todo)
       }
     }
@@ -185,6 +188,13 @@ function EditToDoModal() {
                   updData = {
                     ...updData,
                     date: Timestamp.fromDate(new Date(currTodo.date)),
+                  }
+                }
+
+                if (currTodo.time) {
+                  updData = {
+                    ...updData,
+                    time: Timestamp.fromDate(new Date(currTodo.time)),
                   }
                 }
 
