@@ -3,9 +3,12 @@ import { Button, Grid, List } from '@mui/material'
 import {
   addDoc,
   collection,
+  doc,
   getCountFromServer,
+  getDoc,
   getDocs,
   limit,
+  orderBy,
   query,
   startAfter,
   where,
@@ -14,7 +17,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Todo } from '../../types'
-import { db } from '../firebase'
+import { auth, db } from '../firebase'
 import { useStore } from '../store'
 import { PAGE_SIZE } from '../utils/constants'
 import EditToDoModal from './EditToDoModal'
@@ -41,16 +44,27 @@ function ToDoItemList() {
       listRef.current &&
       listRef.current.getBoundingClientRect().bottom < window.screen.height - 56
     ) {
-      getDocs(
-        query(collection(db, 'todos'), startAfter(todos[-1].id), limit(10))
-      ).then((querySnapshot) => {
-        const newData: Todo[] = querySnapshot.docs.map(
-          (doc) => ({ ...doc.data(), id: doc.id } as Todo)
-        )
-        initTodos([...todos, ...newData])
-        setCurrPage((prev) => prev + 1)
-      })
+      getDoc(doc(db, 'todos', todos[todos.length - 1].id)).then(
+        (lastTodoDoc) => {
+          getDocs(
+            query(
+              collection(db, 'todos'),
+              where('userId', '==', auth.currentUser?.uid),
+              orderBy('createdAt', 'desc'),
+              startAfter(lastTodoDoc),
+              limit(PAGE_SIZE)
+            )
+          ).then((querySnapshot) => {
+            const newData: Todo[] = querySnapshot.docs.map(
+              (t) => ({ ...t.data(), id: t.id } as Todo)
+            )
+            initTodos([...todos, ...newData])
+            setCurrPage((prev) => prev + 1)
+          })
+        }
+      )
     }
+    // eslint-disable-next-line
   }, [listRef, todos, currPage, todosTotal, initTodos])
 
   useEffect(() => {
@@ -60,14 +74,15 @@ function ToDoItemList() {
       if (user !== null) {
         const countTotalQuery = query(
           collection(db, 'todos'),
-          where('user_id', '==', user.uid)
+          where('userId', '==', user.uid),
+          orderBy('createdAt', 'desc')
         )
-  
+
         const countTotalSnapshot = await getCountFromServer(countTotalQuery)
-  
+
         return countTotalSnapshot.data().count
       }
-  
+
       return 0
     }
 
@@ -75,17 +90,18 @@ function ToDoItemList() {
       const todosResult: Todo[] = []
 
       if (user !== null) {
-        getTodosTotal()
+        const totalCount = await getTodosTotal()
 
         const q = query(
           collection(db, 'todos'),
-          where('user_id', '==', user.uid),
-          limit(10)
+          where('userId', '==', user.uid),
+          orderBy('createdAt', 'desc'),
+          limit(PAGE_SIZE)
         )
 
         const querySnapshot = await getDocs(q)
 
-        setTodosTotal(querySnapshot.size)
+        setTodosTotal(totalCount)
 
         querySnapshot.forEach((doc) => {
           todosResult.push({ ...doc.data(), id: doc.id } as Todo)
@@ -111,7 +127,7 @@ function ToDoItemList() {
         lastUpdatedAt: new Date(),
       } as Todo
       const newTodo = await addDoc(collection(db, 'todos'), {
-        user_id: user?.uid,
+        userId: user?.uid,
         ...todoData,
       })
       addTodo({ ...todoData, id: newTodo.id } as Todo)
@@ -138,19 +154,30 @@ function ToDoItemList() {
         <InfiniteScroll
           dataLength={todos ? todos.length : 0}
           next={async () => {
-            getDocs(
-              query(
+            let todoQuery = query(
+              collection(db, 'todos'),
+              where('userId', '==', auth.currentUser?.uid),
+              orderBy('createdAt', 'desc'),
+              limit(PAGE_SIZE)
+            )
+            if (todos.length > 0) {
+              const lastTodoDoc = await getDoc(
+                doc(db, 'todos', todos[todos.length - 1].id)
+              )
+              todoQuery = query(
                 collection(db, 'todos'),
-                startAfter(todos[-1].id),
-                limit(10)
+                where('userId', '==', auth.currentUser?.uid),
+                orderBy('createdAt', 'desc'),
+                startAfter(lastTodoDoc),
+                limit(PAGE_SIZE)
               )
-            ).then((querySnapshot) => {
-              const newData: Todo[] = querySnapshot.docs.map(
-                (doc) => ({ ...doc.data(), id: doc.id } as Todo)
-              )
-              initTodos([...todos, ...newData])
-              setCurrPage((prev) => prev + 1)
-            })
+            }
+            const querySnapshot = await getDocs(query(todoQuery))
+            const newData: Todo[] = querySnapshot.docs.map(
+              (doc) => ({ ...doc.data(), id: doc.id } as Todo)
+            )
+            initTodos([...todos, ...newData])
+            setCurrPage((prev) => prev + 1)
           }}
           hasMore={currPage * PAGE_SIZE < todosTotal}
           loader={<h4>Loading...</h4>}

@@ -3,12 +3,15 @@ import { Box, List } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   limit,
+  orderBy,
   query,
   startAfter,
   Timestamp,
-  where
+  where,
 } from 'firebase/firestore'
 import { useEffect, useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -46,9 +49,11 @@ function CalendarView() {
 
     const q = query(
       collection(db, 'todos'),
-      where('user_id', '==', auth.currentUser?.uid),
+      where('userId', '==', auth.currentUser?.uid),
       where('date', '>=', Timestamp.fromDate(d.startOf('day').toDate())),
-      where('date', '<=', Timestamp.fromDate(d.endOf('day').toDate()))
+      where('date', '<=', Timestamp.fromDate(d.endOf('day').toDate())),
+      orderBy('date'),
+      orderBy('createdAt', 'desc')
     )
 
     const querySnapshot = await getDocs(q)
@@ -68,9 +73,11 @@ function CalendarView() {
 
     const q = query(
       collection(db, 'todos'),
-      where('user_id', '==', auth.currentUser?.uid),
+      where('userId', '==', auth.currentUser?.uid),
       where('date', '>=', Timestamp.fromDate(m.startOf('month').toDate())),
-      where('date', '<=', Timestamp.fromDate(m.endOf('month').toDate()))
+      where('date', '<=', Timestamp.fromDate(m.endOf('month').toDate())),
+      orderBy('date'),
+      orderBy('createdAt', 'desc')
     )
 
     const querySnapshot = await getDocs(q)
@@ -112,7 +119,7 @@ function CalendarView() {
       // This month's todos
       const currMonthQuery = query(
         collection(db, 'todos'),
-        where('user_id', '==', auth.currentUser?.uid),
+        where('userId', '==', auth.currentUser?.uid),
         where(
           'date',
           '>=',
@@ -122,7 +129,9 @@ function CalendarView() {
           'date',
           '<=',
           Timestamp.fromDate(currDate.endOf('month').toDate())
-        )
+        ),
+        orderBy('date'),
+        orderBy('createdAt', 'desc')
       )
 
       const querySnapshot = await getDocs(currMonthQuery)
@@ -150,13 +159,15 @@ function CalendarView() {
       // Today's todos
       const currDateQuery = query(
         collection(db, 'todos'),
-        where('user_id', '==', auth.currentUser?.uid),
+        where('userId', '==', auth.currentUser?.uid),
         where(
           'date',
           '>=',
           Timestamp.fromDate(currDate.startOf('day').toDate())
         ),
-        where('date', '<=', Timestamp.fromDate(currDate.endOf('day').toDate()))
+        where('date', '<=', Timestamp.fromDate(currDate.endOf('day').toDate())),
+        orderBy('date'),
+        orderBy('createdAt', 'desc')
       )
 
       const currDateQuerySnapshot = await getDocs(currDateQuery)
@@ -218,10 +229,13 @@ function CalendarView() {
             <InfiniteScroll
               dataLength={todos ? todos.length : 0}
               next={async () => {
+                const lastTodoDoc = await getDoc(
+                  doc(db, 'todos', todos[todos.length - 1].id)
+                )
                 getDocs(
                   query(
                     collection(db, 'todos'),
-                    where('user_id', '==', auth.currentUser?.uid),
+                    where('userId', '==', auth.currentUser?.uid),
                     where(
                       'date',
                       '>=',
@@ -232,8 +246,9 @@ function CalendarView() {
                       '<=',
                       Timestamp.fromDate(selectedDate.endOf('day').toDate())
                     ),
-                    startAfter(todos[-1].id),
-                    limit(10)
+                    orderBy('createdAt', 'desc'),
+                    startAfter(lastTodoDoc),
+                    limit(PAGE_SIZE)
                   )
                 ).then((querySnapshot) => {
                   const newData: Todo[] = querySnapshot.docs.map(

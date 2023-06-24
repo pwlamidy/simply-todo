@@ -178,7 +178,7 @@ function EditToDoModal() {
 
                 let updData: any = {
                   ...defaultTodo,
-                  user_id: user?.uid,
+                  userId: user?.uid,
                 }
 
                 if (currTodo.date) {
