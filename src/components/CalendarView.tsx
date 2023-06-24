@@ -88,17 +88,19 @@ function CalendarView() {
         const todoDate = d.data().date.toDate().toString()
         if (Object.keys(queryMonthlyCount).indexOf(todoDate) > -1) {
           queryMonthlyCount[todoDate] += 1
+        } else {
+          queryMonthlyCount[todoDate] = 1
         }
       }
     })
-    const todosCount: TodosCount[] = Object.keys(queryMonthlyCount).map((d) => {
+    const todosCountByMonth: TodosCount[] = Object.keys(queryMonthlyCount).map((d) => {
       return {
         date: new Date(d),
         total: queryMonthlyCount[d],
       }
     })
 
-    initTodosCount(todosCount)
+    initTodosCount(todosCountByMonth)
   }
 
   const isToday = useMemo(
@@ -142,10 +144,12 @@ function CalendarView() {
           const todoDate = queryDoc.data().date.toDate().toString()
           if (Object.keys(queryMonthlyCount).indexOf(todoDate) > -1) {
             queryMonthlyCount[todoDate] += 1
+          } else {
+            queryMonthlyCount[todoDate] = 1
           }
         }
       })
-      const todosCount: TodosCount[] = Object.keys(queryMonthlyCount).map(
+      const todosCountByMonth: TodosCount[] = Object.keys(queryMonthlyCount).map(
         (d) => {
           return {
             date: new Date(d),
@@ -154,7 +158,7 @@ function CalendarView() {
         }
       )
 
-      initTodosCount(todosCount)
+      initTodosCount(todosCountByMonth)
 
       // Today's todos
       const currDateQuery = query(
